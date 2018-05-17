@@ -1,6 +1,6 @@
 <img src="https://www.luno.com/static/images/luno-email-336.png">
 
-# Luno API
+# Luno API [![Build Status](https://travis-ci.org/luno/luno-python.svg?branch=master)](https://travis-ci.org/luno/luno-python)
 
 This Python package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
