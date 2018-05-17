@@ -7,6 +7,7 @@ python:
   - 3.6
   
 install:
+  - easy_install -U setuptools
   - python setup.py -q install
 
 script:
