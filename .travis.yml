@@ -7,7 +7,13 @@ python:
   
 install:
   - easy_install -U setuptools
+  - pip uninstall -y six
+  - pip install six>=1.11.0
   - python setup.py -q install
+  - pip install codecov
 
 script:
   - python setup.py test
+
+after_success:
+  - codecov

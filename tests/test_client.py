@@ -31,7 +31,7 @@ def test_client_do_basic():
     c.session.mount('mock', adapter)
 
     adapter.register_uri('GET', 'mock://test/', text='ok')
-    with pytest.raises(JSONDecodeError):
+    with pytest.raises(Exception):
         res = c.do('GET', '/')
 
     adapter.register_uri('GET', 'mock://test/', text='{"key":"value"}')
@@ -39,8 +39,7 @@ def test_client_do_basic():
     assert res['key'] == 'value'
 
     adapter.register_uri('GET', 'mock://test/', text='{}', status_code=400)
-    with pytest.raises(Exception):
-        res = c.do('GET', '/')
+    res = c.do('GET', '/')  # no exception, because no error present
 
     adapter.register_uri('GET', 'mock://test/',
                          text='{"error_code":"code","error":"message"}',
