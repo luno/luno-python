@@ -51,7 +51,7 @@ if __name__ == '__main__':
     print(res)
     time.sleep(0.5)
 
-    res = c.get_fee_info()
+    res = c.get_fee_info(pair='XBTZAR')
     print(res)
     time.sleep(0.5)
 
