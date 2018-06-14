@@ -18,7 +18,7 @@ class Client(BaseClient):
         print e
     """
 
-    def cancel_withdrawal(self, id=None):
+    def cancel_withdrawal(self, id):
         """Makes a call to DELETE /api/1/withdrawals/{id}.
 
         Cancel a withdrawal request. This can only be done if the request is still
@@ -34,7 +34,7 @@ class Client(BaseClient):
         }
         return self.do('DELETE', '/api/1/withdrawals/{id}', req=req, auth=True)
 
-    def create_account(self, currency=None, name=None):
+    def create_account(self, currency, name):
         """Makes a call to POST /api/1/accounts.
 
         Create an additional account for the specified currency.
@@ -55,7 +55,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/accounts', req=req, auth=True)
 
-    def create_funding_address(self, asset=None, name=None):
+    def create_funding_address(self, asset, name=None):
         """Makes a call to POST /api/1/funding_address.
 
         Allocates a new receive address to your account. There is a rate limit of 1
@@ -75,7 +75,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/funding_address', req=req, auth=True)
 
-    def create_quote(self, base_amount=None, pair=None, type=None, base_account_id=None, counter_account_id=None):
+    def create_quote(self, base_amount, pair, type, base_account_id=None, counter_account_id=None):
         """Makes a call to POST /api/1/quotes.
 
         Creates a new quote to buy or sell a particular amount.
@@ -116,7 +116,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/quotes', req=req, auth=True)
 
-    def create_withdrawal(self, amount=None, type=None, beneficiary_id=None, reference=None):
+    def create_withdrawal(self, amount, type, beneficiary_id=None, reference=None):
         """Makes a call to POST /api/1/withdrawals.
 
         Creates a new withdrawal request.
@@ -143,7 +143,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/withdrawals', req=req, auth=True)
 
-    def discard_quote(self, id=None):
+    def discard_quote(self, id):
         """Makes a call to DELETE /api/1/quotes/{id}.
 
         Discard a quote. Once a quote has been discarded, it cannot be exercised even
@@ -159,7 +159,7 @@ class Client(BaseClient):
         }
         return self.do('DELETE', '/api/1/quotes/{id}', req=req, auth=True)
 
-    def exercise_quote(self, id=None):
+    def exercise_quote(self, id):
         """Makes a call to PUT /api/1/quotes/{id}.
 
         Exercise a quote to perform the trade. If there is sufficient balance
@@ -195,7 +195,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/balance', req=req, auth=True)
 
-    def get_fee_info(self, pair=None):
+    def get_fee_info(self, pair):
         """Makes a call to GET /api/1/fee_info.
 
         Returns your fees and 30 day trading volume (as of midnight) for a given
@@ -211,7 +211,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/fee_info', req=req, auth=True)
 
-    def get_funding_address(self, asset=None, address=None):
+    def get_funding_address(self, asset, address=None):
         """Makes a call to GET /api/1/funding_address.
 
         Returns the default receive address associated with your account and the
@@ -235,7 +235,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/funding_address', req=req, auth=True)
 
-    def get_order(self, id=None):
+    def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
 
         Get an order by its ID.
@@ -250,7 +250,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/orders/{id}', req=req, auth=True)
 
-    def get_order_book(self, pair=None):
+    def get_order_book(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
         Returns a list of bids and asks in the order book. Ask orders are sorted by
@@ -265,7 +265,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/orderbook', req=req, auth=False)
 
-    def get_quote(self, id=None):
+    def get_quote(self, id):
         """Makes a call to GET /api/1/quotes/{id}.
 
         Get the latest status of a quote.
@@ -280,7 +280,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/quotes/{id}', req=req, auth=True)
 
-    def get_ticker(self, pair=None):
+    def get_ticker(self, pair):
         """Makes a call to GET /api/1/ticker.
 
         Returns the latest ticker indicators.
@@ -301,7 +301,7 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/tickers', req=None, auth=False)
 
-    def get_withdrawal(self, id=None):
+    def get_withdrawal(self, id):
         """Makes a call to GET /api/1/withdrawals/{id}.
 
         Returns the status of a particular withdrawal request.
@@ -343,7 +343,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/listorders', req=req, auth=True)
 
-    def list_pending_transactions(self, id=None):
+    def list_pending_transactions(self, id):
         """Makes a call to GET /api/1/accounts/{id}/pending.
 
         Return a list of all pending transactions related to the account.
@@ -361,7 +361,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/accounts/{id}/pending', req=req, auth=True)
 
-    def list_trades(self, pair=None, since=None):
+    def list_trades(self, pair, since=None):
         """Makes a call to GET /api/1/trades.
 
         Returns a list of the most recent trades. At most 100 results are returned
@@ -379,7 +379,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/trades', req=req, auth=False)
 
-    def list_transactions(self, id=None, max_row=None, min_row=None):
+    def list_transactions(self, id, max_row, min_row):
         """Makes a call to GET /api/1/accounts/{id}/transactions.
 
         Return a list of transaction entries from an account.
@@ -409,7 +409,7 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/accounts/{id}/transactions', req=req, auth=True)
 
-    def list_user_trades(self, pair=None, limit=None, since=None):
+    def list_user_trades(self, pair, limit=None, since=None):
         """Makes a call to GET /api/1/listtrades.
 
         Returns a list of your recent trades for a given pair, sorted by oldest
@@ -450,7 +450,7 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/withdrawals', req=None, auth=True)
 
-    def post_limit_order(self, pair=None, price=None, type=None, volume=None, base_account_id=None, counter_account_id=None):
+    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None):
         """Makes a call to POST /api/1/postorder.
 
         Create a new trade order.
@@ -490,7 +490,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/postorder', req=req, auth=True)
 
-    def post_market_order(self, pair=None, type=None, base_account_id=None, base_volume=None, counter_account_id=None, counter_volume=None):
+    def post_market_order(self, pair, type, base_account_id=None, base_volume=None, counter_account_id=None, counter_volume=None):
         """Makes a call to POST /api/1/marketorder.
 
         Create a new market order.
@@ -534,7 +534,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def send(self, address=None, amount=None, currency=None, description=None, message=None):
+    def send(self, address, amount, currency, description=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send Bitcoin from your account to a Bitcoin address or email address. Send
@@ -577,7 +577,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
 
-    def stop_order(self, order_id=None):
+    def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
 
         Request to stop an order.
