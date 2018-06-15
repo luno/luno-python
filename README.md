@@ -4,8 +4,6 @@
 
 This Python package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
-⚠️ *WARNING* This package is currently being tested, and should not be used in production.
-
 ### Installation
 
 ```
@@ -18,6 +16,17 @@ Please visit the [Settings](https://www.luno.com/wallet/settings/api_keys) page
 to generate an API key.
 
 ### Example usage
+
+```
+from luno_python.client import Client
+
+c = Client(api_key_id='key_id', api_key_secret='key_secret')
+try:
+  res = c.get_ticker(pair='XBTZAR')
+  print res
+except Exception as e:
+  print e
+```
 
 ### License
 
