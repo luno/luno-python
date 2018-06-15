@@ -17,7 +17,7 @@ to generate an API key.
 
 ### Example usage
 
-```
+```python
 from luno_python.client import Client
 
 c = Client(api_key_id='key_id', api_key_secret='key_secret')
