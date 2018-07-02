@@ -450,7 +450,7 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/withdrawals', req=None, auth=True)
 
-    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None):
+    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None):
         """Makes a call to POST /api/1/postorder.
 
         Create a new trade order.
@@ -479,6 +479,12 @@ class Client(BaseClient):
         :type base_account_id: str
         :param counter_account_id: The counter currency account to use in the trade.
         :type counter_account_id: str
+        :param post_only: Post-only orders will be cancelled if they would otherwise have traded
+                          immediately. For example, if there's a bid at ZAR 100,000 and you place
+                          a post-only ask at ZAR 100,000, your order will be cancelled instead of
+                          trading. If the best bid is ZAR 100,000 and you place a post-only ask at
+                          ZAR 101,000, your order won't trade but will go into the order book.
+        :type post_only: bool
         """
         req = {
             'pair': pair,
@@ -487,6 +493,7 @@ class Client(BaseClient):
             'volume': volume,
             'base_account_id': base_account_id,
             'counter_account_id': counter_account_id,
+            'post_only': post_only,
         }
         return self.do('POST', '/api/1/postorder', req=req, auth=True)
 
