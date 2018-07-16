@@ -251,11 +251,31 @@ class Client(BaseClient):
         return self.do('GET', '/api/1/orders/{id}', req=req, auth=True)
 
     def get_order_book(self, pair):
+        """Makes a call to GET /api/1/orderbook_top.
+
+        Returns a list of the top 100 bids and asks in the order book.
+        Ask orders are sorted by price ascending.
+        Bid orders are sorted by price descending.
+        Orders of the same price are aggregated.
+
+        :param pair: Currency pair
+        :type pair: str
+        """
+        req = {
+            'pair': pair,
+        }
+        return self.do('GET', '/api/1/orderbook_top', req=req, auth=False)
+
+    def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
-        Returns a list of bids and asks in the order book. Ask orders are sorted by
-        price ascending. Bid orders are sorted by price descending. Note that
-        multiple orders at the same price are not necessarily conflated.
+        Returns a list of all bids and asks in the order book.
+        Ask orders are sorted by price ascending.
+        Bid orders are sorted by price descending.
+        Multiple orders at the same price are not aggregated.
+
+        Warning: This may return a large amount of data. Generally you should rather
+        use GetOrderBook or the Streaming API.
 
         :param pair: Currency pair
         :type pair: str
