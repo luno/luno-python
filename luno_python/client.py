@@ -429,11 +429,12 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/accounts/{id}/transactions', req=req, auth=True)
 
-    def list_user_trades(self, pair, limit=None, since=None):
+    def list_user_trades(self, pair, after_seq=None, before=None, before_seq=None, limit=None, since=None, sort_desc=None):
         """Makes a call to GET /api/1/listtrades.
 
         Returns a list of your recent trades for a given pair, sorted by oldest
-        first.
+        first. If <code>before</code> is specified, then the trades are returned
+        sorted by most-recent first.
 
         <code>type</code> in the response indicates the type of order that you placed
         in order to participate in the trade. Possible types: <code>BID</code>,
@@ -448,15 +449,30 @@ class Client(BaseClient):
 
         :param pair: Filter to trades of this currency pair.
         :type pair: str
+        :param after_seq: Filter to trades from (including) this sequence number.
+                          Default behaviour is not to include this filter.
+        :type after_seq: int
+        :param before: Filter to trades before this timestamp.
+        :type before: int
+        :param before_seq: Filter to trades before (excluding) this sequence number.
+                           Default behaviour is not to include this filter.
+        :type before_seq: int
         :param limit: Limit to this number of trades (default 100).
         :type limit: int
         :param since: Filter to trades on or after this timestamp.
         :type since: int
+        :param sort_desc: If set to true, sorts trades in descending order, otherwise ascending
+                          order will be assumed.
+        :type sort_desc: bool
         """
         req = {
             'pair': pair,
+            'after_seq': after_seq,
+            'before': before,
+            'before_seq': before_seq,
             'limit': limit,
             'since': since,
+            'sort_desc': sort_desc,
         }
         return self.do('GET', '/api/1/listtrades', req=req, auth=True)
 
@@ -570,7 +586,7 @@ class Client(BaseClient):
         If the email address is not associated with an existing Luno account, an
         invitation to create an account and claim the funds will be sent.
 
-        Warning! Digital currency transactions are irreversible. Please ensure your
+        Warning! Cryptocurrency transactions are irreversible. Please ensure your
         program has been thoroughly tested before using this call.
 
         Permissions required: <code>Perm_W_Send</code>
