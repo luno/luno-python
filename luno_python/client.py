@@ -116,7 +116,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/quotes', req=req, auth=True)
 
-    def create_withdrawal(self, amount, type, beneficiary_id=None, reference=None):
+    def create_withdrawal(self, amount, type, beneficiary_id=None, external_id=None, reference=None):
         """Makes a call to POST /api/1/withdrawals.
 
         Creates a new withdrawal request.
@@ -132,6 +132,10 @@ class Client(BaseClient):
                                bank account beneficiary ID can be found by clicking on the beneficiary
                                name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
         :type beneficiary_id: str
+        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
+                            duplicate sends in case of failure. It supports all alphanumeric
+                            characters, as well as "-" and "_".
+        :type external_id: str
         :param reference: For internal use.
         :type reference: str
         """
@@ -139,6 +143,7 @@ class Client(BaseClient):
             'amount': amount,
             'type': type,
             'beneficiary_id': beneficiary_id,
+            'external_id': external_id,
             'reference': reference,
         }
         return self.do('POST', '/api/1/withdrawals', req=req, auth=True)
@@ -577,7 +582,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def send(self, address, amount, currency, description=None, message=None):
+    def send(self, address, amount, currency, description=None, external_id=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send Bitcoin from your account to a Bitcoin address or email address. Send
@@ -607,6 +612,10 @@ class Client(BaseClient):
         :type currency: str
         :param description: Description for the transaction to record on the account statement.
         :type description: str
+        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
+                            duplicate sends in case of failure. It supports all alphanumeric
+                            characters, as well as "-" and "_".
+        :type external_id: str
         :param message: Message to send to the recipient. This is only relevant when sending to
                         an email address.
         :type message: str
@@ -616,6 +625,7 @@ class Client(BaseClient):
             'amount': amount,
             'currency': currency,
             'description': description,
+            'external_id': external_id,
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
