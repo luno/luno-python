@@ -1,4 +1,4 @@
-<img src="https://www.luno.com/static/images/luno-email-336.png">
+<img src="https://d32exi8v9av3ux.cloudfront.net/static/images/luno-email-336.png">
 
 # Luno API [![Build Status](https://travis-ci.org/luno/luno-python.svg?branch=master)](https://travis-ci.org/luno/luno-python)
 
