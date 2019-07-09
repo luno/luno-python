@@ -11,8 +11,8 @@ def handle_update(pair, state, update):
 asyncio.get_event_loop().run_until_complete(
     stream_market(
         pair="XBTZAR",
-        api_key_id=[api key],
-        api_key_secret=[api secret],
+        api_key_id="", # API Key goes here
+        api_key_secret="", # and API Secret goes here
         update_callback=handle_update,
     )
 )
