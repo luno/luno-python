@@ -134,7 +134,11 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
     is_first = True
 
     async for message in ws:
-        body = json.loads(message)
+        try:
+            body = json.loads(message)
+        except ValueError:
+            raise Exception(message)
+
         if body == "": # Empty update, used as keepalive
             body = None
 
