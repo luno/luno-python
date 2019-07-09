@@ -2,7 +2,7 @@ from collections import namedtuple
 from decimal import Decimal
 from typing import List
 
-DEC_0 = Decimal('0')
+DEC_0 = Decimal("0")
 
 Order = namedtuple("Order", "order_id price volume")
 
