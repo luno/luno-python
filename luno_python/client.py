@@ -27,7 +27,7 @@ class Client(BaseClient):
         Permissions required: <code>Perm_W_Withdrawals</code>
 
         :param id: ID of the withdrawal to cancel.
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -37,14 +37,15 @@ class Client(BaseClient):
     def create_account(self, currency, name):
         """Makes a call to POST /api/1/accounts.
 
-        Create an additional account for the specified currency.
+        This request creates an Account for the specified currency.  Please note that the balances for the Account will be displayed based on the <code>asset</code> value, which is the currency the Account is based on.
 
         Permissions required: <code>Perm_W_Addresses</code>
 
-        :param currency: The currency code for the account you want to create
+        :param currency: The currency code for the Account you want to create.  Please see the Currency section for a detailed list of currencies supported by the Luno platform.
 
-                         You must be verified to trade currency in order to be able to create an
-                         account. A user has a limit of 4 accounts per currency.
+                         Users must be verified to trade currency in order to be able to create an Account.  For more information on the verification process, please see <a href="/help/en/articles/1000168396">How do I verify my identity?</a>.
+
+                         Users have a limit of 4 accounts per currency.
         :type currency: str
         :param name: The label to use for this account
         :type name: str
@@ -66,7 +67,7 @@ class Client(BaseClient):
 
         :param asset: Currency code of the asset.
         :type asset: str
-        :param name: An optional name for the new address
+        :param name: An optional name for the new Receive Address
         :type name: str
         """
         req = {
@@ -103,9 +104,9 @@ class Client(BaseClient):
         :param type: <code>BUY</code> or <code>SELL</code>.
         :type type: str
         :param base_account_id: Optional account for the pair's base currency.
-        :type base_account_id: str
+        :type base_account_id: int
         :param counter_account_id: Optional account for the pair's counter currency.
-        :type counter_account_id: str
+        :type counter_account_id: int
         """
         req = {
             'base_amount': base_amount,
@@ -131,7 +132,7 @@ class Client(BaseClient):
                                to. This parameter is required if you have multiple bank accounts. Your
                                bank account beneficiary ID can be found by clicking on the beneficiary
                                name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
-        :type beneficiary_id: str
+        :type beneficiary_id: int
         :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
                             duplicate sends in case of failure. It supports all alphanumeric
                             characters, as well as "-" and "_".
@@ -157,7 +158,7 @@ class Client(BaseClient):
         Permissions required: <code>Perm_W_Orders</code>
 
         :param id: ID of the quote to discard.
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -177,7 +178,7 @@ class Client(BaseClient):
         Permissions required: <code>Perm_W_Orders</code>
 
         :param id: ID of the quote to exercise.
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -187,7 +188,7 @@ class Client(BaseClient):
     def get_balances(self, assets=None):
         """Makes a call to GET /api/1/balance.
 
-        Return the list of all accounts and their respective balances.
+        The list of all Accounts and their respective balances for the requesting user.
 
         Permissions required: <code>Perm_R_Balance</code>
 
@@ -203,8 +204,7 @@ class Client(BaseClient):
     def get_fee_info(self, pair):
         """Makes a call to GET /api/1/fee_info.
 
-        Returns your fees and 30 day trading volume (as of midnight) for a given
-        pair.
+        Returns the fees and 30 day trading volume (as of midnight) for a given currency pair.  For complete details, please see <a href="en/countries">Fees & Features</a>.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -220,17 +220,16 @@ class Client(BaseClient):
         """Makes a call to GET /api/1/funding_address.
 
         Returns the default receive address associated with your account and the
-        amount received via the address. You can specify an optional address
-        parameter to return information for a non-default receive address. In the
-        response, total_received is the total confirmed Bitcoin amount received
-        excluding unconfirmed transactions. total_unconfirmed is the total sum of
-        unconfirmed receive transactions.
+        amount received via the address. Users can specify an optional address parameter to return information for a non-default receive address.
+
+        In the response, <code>total_received</code> is the total confirmed amount received excluding unconfirmed transactions.
+        <code>total_unconfirmed</code> is the total sum of unconfirmed receive transactions.
 
         Permissions required: <code>Perm_R_Addresses</code>
 
         :param asset: Currency code of the asset.
         :type asset: str
-        :param address: Specific Bitcoin or Ethereum address to retrieve. If not provided, the
+        :param address: Specific cryptocurrency address to retrieve. If not provided, the
                         default address will be used.
         :type address: str
         """
@@ -239,6 +238,24 @@ class Client(BaseClient):
             'address': address,
         }
         return self.do('GET', '/api/1/funding_address', req=req, auth=True)
+
+    def get_lightning_receive(self, id):
+        """Makes a call to GET /api/1/lightning/receive/{id}.
+
+        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+        The risks are limited api availability and channel capacity.
+
+        Lookup the status of a Lightning Receive Invoice.
+
+        Permissions required: <code>Perm_W_Send</code>
+
+        :param id: ID of invoice.
+        :type id: int
+        """
+        req = {
+            'id': id,
+        }
+        return self.do('GET', '/api/1/lightning/receive/{id}', req=req, auth=True)
 
     def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
@@ -258,12 +275,15 @@ class Client(BaseClient):
     def get_order_book(self, pair):
         """Makes a call to GET /api/1/orderbook_top.
 
-        Returns a list of the top 100 bids and asks in the order book.
-        Ask orders are sorted by price ascending.
-        Bid orders are sorted by price descending.
+        Returns a list of the top 100 <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+
+        Ask Orders are sorted by price ascending.
+
+        Bid Orders are sorted by price descending.
+
         Orders of the same price are aggregated.
 
-        :param pair: Currency pair
+        :param pair: Currency pair of the Orders to retrieve
         :type pair: str
         """
         req = {
@@ -274,15 +294,19 @@ class Client(BaseClient):
     def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
-        Returns a list of all bids and asks in the order book.
+        This request returns a list of all <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+
         Ask orders are sorted by price ascending.
+
         Bid orders are sorted by price descending.
+
         Multiple orders at the same price are not aggregated.
 
-        Warning: This may return a large amount of data. Generally you should rather
-        use GetOrderBook or the Streaming API.
+        <b>Warning:</b> This may return a large amount of data.
+        Users are recommended to use the <a href="#operation/getOrderBook">top 100 bids and asks</a>
+        or the <a href="#tag/streaming-API-(beta)">Streaming API</a>.
 
-        :param pair: Currency pair
+        :param pair: Currency pair of the Orders to retrieve
         :type pair: str
         """
         req = {
@@ -298,7 +322,7 @@ class Client(BaseClient):
         Permissions required: <code>Perm_R_Orders</code>
 
         :param id: ID of the quote to retrieve.
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -334,7 +358,7 @@ class Client(BaseClient):
         Permissions required: <code>Perm_R_Withdrawals</code>
 
         :param id: Withdrawal ID to retrieve.
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -344,10 +368,10 @@ class Client(BaseClient):
     def list_orders(self, created_before=None, limit=None, pair=None, state=None):
         """Makes a call to GET /api/1/listorders.
 
-        Returns a list of the most recently placed orders. You can specify an
-        optional <code>state=PENDING</code> parameter to restrict the results to only
-        open orders. You can also specify the market by using the optional pair
-        parameter. The list is truncated after 100 items.
+        Returns a list of the most recently placed Orders.
+        Users can specify an optional <code>state=PENDING</code> parameter to restrict the results to only open Orders.
+        Users can also specify the market by using the optional currency pair parameter.
+        The list is truncated after 100 items.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -371,15 +395,14 @@ class Client(BaseClient):
     def list_pending_transactions(self, id):
         """Makes a call to GET /api/1/accounts/{id}/pending.
 
-        Return a list of all pending transactions related to the account.
+        Return a list of all transactions that have not completed for the Account.
 
-        Unlike account entries, pending transactions are not numbered, and may be
-        reordered, deleted or updated at any time.
+        Pending transactions are not numbered, and may be reordered, deleted or updated at any time.
 
         Permissions required: <code>Perm_R_Transactions</code>
 
         :param id: Account ID
-        :type id: str
+        :type id: int
         """
         req = {
             'id': id,
@@ -389,8 +412,8 @@ class Client(BaseClient):
     def list_trades(self, pair, since=None):
         """Makes a call to GET /api/1/trades.
 
-        Returns a list of the most recent trades. At most 100 results are returned
-        per call.
+        Returns a list of the most recent trades that happened in the last 24h. At
+        most 100 results are returned per call.
 
         :param pair: Currency pair
         :type pair: str
@@ -420,8 +443,8 @@ class Client(BaseClient):
 
         Permissions required: <code>Perm_R_Transactions</code>
 
-        :param id: Account ID
-        :type id: str
+        :param id: Account ID - the unique identifier for the specific Account.
+        :type id: int
         :param max_row: Maximum of the row range to return (exclusive)
         :type max_row: int
         :param min_row: Minimum of the row range to return (inclusive)
@@ -437,16 +460,13 @@ class Client(BaseClient):
     def list_user_trades(self, pair, after_seq=None, before=None, before_seq=None, limit=None, since=None, sort_desc=None):
         """Makes a call to GET /api/1/listtrades.
 
-        Returns a list of your recent trades for a given pair, sorted by oldest
-        first. If <code>before</code> is specified, then the trades are returned
-        sorted by most-recent first.
+        Returns a list of the recent Trades for a given currency pair for this user, sorted by oldest first.
+        If <code>before</code> is specified, then Trades are returned sorted by most-recent first.
 
-        <code>type</code> in the response indicates the type of order that you placed
-        in order to participate in the trade. Possible types: <code>BID</code>,
-        <code>ASK</code>.
+        <code>type</code> in the response indicates the type of Order that was placed to participate in the trade.
+        Possible types: <code>BID</code>, <code>ASK</code>.
 
-        If <code>is_buy</code> in the response is true, then the order which
-        completed the trade (market taker) was a bid order.
+        If <code>is_buy</code> in the response is true, then the Order which completed the trade (market taker) was a Bid Order.
 
         Results of this query may lag behind the latest data.
 
@@ -517,9 +537,9 @@ class Client(BaseClient):
                        of the currency.
         :type volume: float
         :param base_account_id: The base currency account to use in the trade.
-        :type base_account_id: str
+        :type base_account_id: int
         :param counter_account_id: The counter currency account to use in the trade.
-        :type counter_account_id: str
+        :type counter_account_id: int
         :param post_only: Post-only orders will be cancelled if they would otherwise have traded
                           immediately. For example, if there's a bid at ZAR 100,000 and you place
                           a post-only ask at ZAR 100,000, your order will be cancelled instead of
@@ -541,35 +561,30 @@ class Client(BaseClient):
     def post_market_order(self, pair, type, base_account_id=None, base_volume=None, counter_account_id=None, counter_volume=None):
         """Makes a call to POST /api/1/marketorder.
 
-        Create a new market order.
+        Create a new Market Order.
 
-        A market order executes immediately, and either buys as much Bitcoin or
-        Ethereum that can be bought for a set amount of fiat currency, or sells a
-        set amount of Bitcoin or Ethereum for as much fiat as possible.
+        A Market Order executes immediately, and either buys as much of the asset that can be bought for a set amount of fiat currency, or sells a set amount of the asset for as much as possible.
 
-        Warning! Orders cannot be reversed once they have executed. Please ensure
-        your program has been thoroughly tested before submitting orders.
+        <b>Warning!</b> Orders cannot be reversed once they have executed.
+        Please ensure your program has been thoroughly tested before submitting Orders.
 
-        If no base_account_id or counter_account_id are specified, your default base
-        currency or counter currency account will be used. You can find your account
-        IDs by calling the <a href="#operation/getBalances">Balances</a> API.
+        If no <code>base_account_id</code> or <code>counter_account_id</code> are specified, the default base currency or counter currency account will be used.
+        Users can find their account IDs by calling the <a href="#operation/getBalances">Balances</a> request.
 
         Permissions required: <code>Perm_W_Orders</code>
 
         :param pair: The currency pair to trade.
         :type pair: str
-        :param type: <code>BUY</code> to buy Bitcoin or Ethereum<br>
-                     <code>SELL</code> to sell Bitcoin or Ethereum
+        :param type: <code>BUY</code> to buy an asset<br>
+                     <code>SELL</code> to sell an asset
         :type type: str
         :param base_account_id: The base currency account to use in the trade.
-        :type base_account_id: str
-        :param base_volume: For a <code>SELL</code> order: amount of Bitcoin to sell as a decimal
-                            string in units of BTC or ETH.
+        :type base_account_id: int
+        :param base_volume: For a <code>SELL</code> order: amount of the base currency to use (e.g. how much BTC to sell for EUR in the BTC/EUR market)
         :type base_volume: float
         :param counter_account_id: The counter currency account to use in the trade.
-        :type counter_account_id: str
-        :param counter_volume: For a <code>BUY</code> order: amount of local currency (e.g. ZAR, MYR) to
-                               spend as a decimal string in units of the local currency.
+        :type counter_account_id: int
+        :param counter_volume: For a <code>BUY</code> order: amount of the counter currency to use (e.g. how much EUR to use to buy BTC in the BTC/EUR market)
         :type counter_volume: float
         """
         req = {
@@ -581,6 +596,36 @@ class Client(BaseClient):
             'counter_volume': counter_volume,
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
+
+    def receive_lightning(self, amount, currency=None, description=None, expires_at=None):
+        """Makes a call to POST /api/1/lightning/receive.
+
+        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+        The risks are limited api availability and channel capacity.
+
+        Create a lightning invoice which can be used to receive
+        BTC payments over the lightning network.
+
+        Permissions required: <code>Perm_W_Send</code>
+
+        :param amount: Amount to send as a decimal string.
+        :type amount: float
+        :param currency: Currency to receive (defaults to XBT).
+        :type currency: str
+        :param description: User defined description to add to lightning invoice.
+        :type description: str
+        :param expires_at: Unix expiry timestamp (ms).
+
+                           in query
+        :type expires_at: int
+        """
+        req = {
+            'amount': amount,
+            'currency': currency,
+            'description': description,
+            'expires_at': expires_at,
+        }
+        return self.do('POST', '/api/1/lightning/receive', req=req, auth=True)
 
     def send(self, address, amount, currency, description=None, external_id=None, message=None):
         """Makes a call to POST /api/1/send.
@@ -629,6 +674,38 @@ class Client(BaseClient):
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
+
+    def send_lightning(self, payment_request, currency=None, description=None, external_id=None):
+        """Makes a call to POST /api/1/lightning/send.
+
+        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
+        The risks are limited api availability and channel capacity.
+
+        Send Bitcoin over the Lightning network from your Bitcoin Account.
+
+        Warning! Cryptocurrency transactions are irreversible. Please ensure your
+        program has been thoroughly tested before using this call.
+
+        Permissions required: <code>Perm_W_Send</code>
+
+        :param payment_request: Lightning payment request to send to.
+        :type payment_request: str
+        :param currency: Currency to send.
+        :type currency: str
+        :param description: Description for the transaction to record on the account statement.
+        :type description: str
+        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
+                            duplicate sends in case of failure. It supports all alphanumeric
+                            characters, as well as "-" and "_".
+        :type external_id: str
+        """
+        req = {
+            'payment_request': payment_request,
+            'currency': currency,
+            'description': description,
+            'external_id': external_id,
+        }
+        return self.do('POST', '/api/1/lightning/send', req=req, auth=True)
 
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
