@@ -21,8 +21,8 @@ class Client(BaseClient):
     def cancel_withdrawal(self, id):
         """Makes a call to DELETE /api/1/withdrawals/{id}.
 
-        Cancel a withdrawal request. This can only be done if the request is still
-        in state <code>PENDING</code>.
+        Cancel a withdrawal request.
+        This can only be done if the request is still in state <code>PENDING</code>.
 
         Permissions required: <code>Perm_W_Withdrawals</code>
 
@@ -79,20 +79,17 @@ class Client(BaseClient):
     def create_quote(self, base_amount, pair, type, base_account_id=None, counter_account_id=None):
         """Makes a call to POST /api/1/quotes.
 
-        Creates a new quote to buy or sell a particular amount.
+        Creates a new quote to buy or sell a particular amount of a base currency for a counter currency.
 
-        You can specify either the exact amount that you want to pay or the exact
-        amount that you want too receive.
+        Users can specify either the exact amount to pay or the exact amount to receive.
 
-        For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote
-        to BUY 0.1 XBTZAR. The returned quote includes the appropriate ZAR amount. To
-        buy Bitcoin using exactly ZAR 100, you would create a quote to SELL 100
-        ZARXBT. The returned quote specifies the Bitcoin as the counter amount that
-        will be returned.
+        For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote to BUY 0.1 XBTZAR.
+        The returned quote includes the appropriate ZAR amount.
+        To buy Bitcoin using exactly ZAR 100, create a quote to SELL 100 ZARXBT.
+        The returned quote specifies the Bitcoin as the counter amount returned.
 
-        An error is returned if your account is not verified for the currency pair,
-        or if your account would have insufficient balance to ever exercise the
-        quote.
+        An error is returned if the Account is not verified for the currency pair,
+        or if the Account would have insufficient balance to ever exercise the quote.
 
         Permissions required: <code>Perm_W_Orders</code>
 
@@ -103,9 +100,9 @@ class Client(BaseClient):
         :type pair: str
         :param type: <code>BUY</code> or <code>SELL</code>.
         :type type: str
-        :param base_account_id: Optional account for the pair's base currency.
+        :param base_account_id: Optional Account for the pair's base currency.
         :type base_account_id: int
-        :param counter_account_id: Optional account for the pair's counter currency.
+        :param counter_account_id: Optional Account for the pair's counter currency.
         :type counter_account_id: int
         """
         req = {
@@ -120,22 +117,21 @@ class Client(BaseClient):
     def create_withdrawal(self, amount, type, beneficiary_id=None, external_id=None, reference=None):
         """Makes a call to POST /api/1/withdrawals.
 
-        Creates a new withdrawal request.
+        Creates a new withdrawal request to the specified beneficiary.
 
         Permissions required: <code>Perm_W_Withdrawals</code>
 
-        :param amount: Amount to withdraw. The currency depends on the type.
+        :param amount: Amount to withdraw. The currency withdrawn depends on the type setting.
         :type amount: float
         :param type: Withdrawal type.
         :type type: str
-        :param beneficiary_id: The beneficiary ID of the bank account the withdrawal will be paid out
-                               to. This parameter is required if you have multiple bank accounts. Your
-                               bank account beneficiary ID can be found by clicking on the beneficiary
-                               name on the <a href="/wallet/beneficiaries">Beneficiaries</a> page.
+        :param beneficiary_id: The beneficiary ID of the bank account the withdrawal will be paid out to.
+                               This parameter is required if the user has set up multiple beneficiaries.
+                               The beneficiary ID can be found by selecting on the beneficiary name on the user’s <a href="/wallet/beneficiaries">Beneficiaries</a> page.
         :type beneficiary_id: int
-        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
-                            duplicate sends in case of failure. It supports all alphanumeric
-                            characters, as well as "-" and "_".
+        :param external_id: Optional unique ID to associate with this withdrawal.
+                            Useful to prevent duplicate sends.
+                            This field supports all alphanumeric characters including "-" and "_".
         :type external_id: str
         :param reference: For internal use.
         :type reference: str
@@ -152,8 +148,8 @@ class Client(BaseClient):
     def discard_quote(self, id):
         """Makes a call to DELETE /api/1/quotes/{id}.
 
-        Discard a quote. Once a quote has been discarded, it cannot be exercised even
-        if it has not expired yet.
+        Discard a Quote.
+        Once a Quote has been discarded, it cannot be exercised even if it has not expired.
 
         Permissions required: <code>Perm_W_Orders</code>
 
@@ -168,12 +164,11 @@ class Client(BaseClient):
     def exercise_quote(self, id):
         """Makes a call to PUT /api/1/quotes/{id}.
 
-        Exercise a quote to perform the trade. If there is sufficient balance
-        available in your account, it will be debited and the counter amount
-        credited.
+        Exercise a quote to perform the Trade.
+        If there is sufficient balance available in the Account,
+        it will be debited and the counter amount credited.
 
-        An error is returned if the quote has expired or if you have insufficient
-        available balance.
+        An error is returned if the quote has expired or if the Account has insufficient available balance.
 
         Permissions required: <code>Perm_W_Orders</code>
 
@@ -260,7 +255,7 @@ class Client(BaseClient):
     def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
 
-        Get an order by its ID.
+        Get an Order's details by its ID.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -317,7 +312,7 @@ class Client(BaseClient):
     def get_quote(self, id):
         """Makes a call to GET /api/1/quotes/{id}.
 
-        Get the latest status of a quote.
+        Get the latest status of a quote by its id.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -332,7 +327,9 @@ class Client(BaseClient):
     def get_ticker(self, pair):
         """Makes a call to GET /api/1/ticker.
 
-        Returns the latest ticker indicators.
+        Returns the latest ticker indicators for the specified currency pair.
+
+        Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 
         :param pair: Currency pair
         :type pair: str
@@ -346,6 +343,8 @@ class Client(BaseClient):
         """Makes a call to GET /api/1/tickers.
 
         Returns the latest ticker indicators from all active Luno exchanges.
+
+        Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 
         """
         return self.do('GET', '/api/1/tickers', req=None, auth=False)
@@ -364,6 +363,16 @@ class Client(BaseClient):
             'id': id,
         }
         return self.do('GET', '/api/1/withdrawals/{id}', req=req, auth=True)
+
+    def list_beneficiaries_response(self):
+        """Makes a call to GET /api/1/beneficiaries.
+
+        Returns a list of bank beneficiaries.
+
+        Permissions required: <code>Perm_R_Beneficiaries</code>
+
+        """
+        return self.do('GET', '/api/1/beneficiaries', req=None, auth=True)
 
     def list_orders(self, created_before=None, limit=None, pair=None, state=None):
         """Makes a call to GET /api/1/listorders.
@@ -412,8 +421,10 @@ class Client(BaseClient):
     def list_trades(self, pair, since=None):
         """Makes a call to GET /api/1/trades.
 
-        Returns a list of the most recent trades that happened in the last 24h. At
-        most 100 results are returned per call.
+        Returns a list of the most recent Trades for the specified currency pair in the last 24 hours.
+        At most 100 results are returned per call.
+
+        Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 
         :param pair: Currency pair
         :type pair: str
@@ -514,15 +525,14 @@ class Client(BaseClient):
     def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None):
         """Makes a call to POST /api/1/postorder.
 
-        Create a new trade order.
+        Create a new Trade Order.
 
-        Warning! Orders cannot be reversed once they have executed. Please ensure
-        your program has been thoroughly tested before submitting orders.
+        <b>Warning!</b> Orders cannot be reversed once they have executed.
+        Please ensure your program has been thoroughly tested before submitting Orders.
 
-        If no <code>base_account_id</code> or <code>counter_account_id</code> are
-        specified, your default base currency or counter currency account will be
-        used. You can find your account IDs by calling the
-        <a href="#operation/getBalances">Balances</a> API.
+        If no <code>base_account_id</code> or <code>counter_account_id</code> are specified,
+        your default base currency or counter currency account will be used.
+        You can find your Account IDs by calling the <a href="#operation/getBalances">Balances</a> API.
 
         Permissions required: <code>Perm_W_Orders</code>
 
@@ -531,20 +541,20 @@ class Client(BaseClient):
         :param price: Limit price as a decimal string in units of ZAR/BTC.
         :type price: float
         :param type: <code>BID</code> for a bid (buy) limit order<br>
-                     <code>ASK</code> for ab ask (sell) limit order
+                     <code>ASK</code> for an ask (sell) limit order
         :type type: str
-        :param volume: Amount of Bitcoin or Ethereum to buy or sell as a decimal string in units
-                       of the currency.
+        :param volume: Amount of cryptocurrency to buy or sell as a decimal string in units of the currency.
         :type volume: float
-        :param base_account_id: The base currency account to use in the trade.
+        :param base_account_id: The base currency Account to use in the trade.
         :type base_account_id: int
-        :param counter_account_id: The counter currency account to use in the trade.
+        :param counter_account_id: The counter currency Account to use in the trade.
         :type counter_account_id: int
-        :param post_only: Post-only orders will be cancelled if they would otherwise have traded
-                          immediately. For example, if there's a bid at ZAR 100,000 and you place
-                          a post-only ask at ZAR 100,000, your order will be cancelled instead of
-                          trading. If the best bid is ZAR 100,000 and you place a post-only ask at
-                          ZAR 101,000, your order won't trade but will go into the order book.
+        :param post_only: Post-only Orders will be cancelled if they would otherwise have traded
+                          immediately.
+                          For example, if there's a bid at ZAR 100,000 and you place a post-only ask at ZAR 100,000,
+                          your order will be cancelled instead of trading.
+                          If the best bid is ZAR 100,000 and you place a post-only ask at ZAR 101,000,
+                          your order won't trade but will go into the order book.
         :type post_only: bool
         """
         req = {
@@ -630,21 +640,15 @@ class Client(BaseClient):
     def send(self, address, amount, currency, description=None, external_id=None, message=None):
         """Makes a call to POST /api/1/send.
 
-        Send Bitcoin from your account to a Bitcoin address or email address. Send
-        Ethereum from your account to an Ethereum address.
+        Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
 
-        If the email address is not associated with an existing Luno account, an
-        invitation to create an account and claim the funds will be sent.
-
-        Warning! Cryptocurrency transactions are irreversible. Please ensure your
-        program has been thoroughly tested before using this call.
+        Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
 
         Permissions required: <code>Perm_W_Send</code>
 
-        :param address: Destination Bitcoin address or email address, or Ethereum address to send
-                        to.
+        :param address: Destination address or email address.
 
-                        Note:
+                        <b>Note</b>:
                         <ul>
                         <li>Ethereum addresses must be
                         <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
@@ -655,14 +659,14 @@ class Client(BaseClient):
         :type amount: float
         :param currency: Currency to send.
         :type currency: str
-        :param description: Description for the transaction to record on the account statement.
+        :param description: User description for the transaction to record on the account statement.
         :type description: str
-        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
-                            duplicate sends in case of failure. It supports all alphanumeric
-                            characters, as well as "-" and "_".
+        :param external_id: Optional unique ID to associate with this withdrawal.
+                            Useful to prevent duplicate sends in case of failure.
+                            This supports all alphanumeric characters, as well as "-" and "_".
         :type external_id: str
-        :param message: Message to send to the recipient. This is only relevant when sending to
-                        an email address.
+        :param message: Message to send to the recipient.
+                        This is only relevant when sending to an email address.
         :type message: str
         """
         req = {
@@ -710,17 +714,38 @@ class Client(BaseClient):
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
 
-        Request to stop an order.
+        Request to stop an Order.
+
+        <b>Note!</b>: Once as Order has been completed, it can not be reversed.
+        The return value from this request will indicate if the Stop request was successful or not.
 
         Permissions required: <code>Perm_W_Orders</code>
 
-        :param order_id: The order reference as a string.
+        :param order_id: The Order identifier as a string.
         :type order_id: str
         """
         req = {
             'order_id': order_id,
         }
         return self.do('POST', '/api/1/stoporder', req=req, auth=True)
+
+    def update_account_name(self, id, name):
+        """Makes a call to PUT /api/1/accounts/{id}/name.
+
+        Update the name of an account with a given ID.
+
+        Permissions required: <code>Perm_W_Addresses</code>
+
+        :param id: Account ID - the unique identifier for the specific Account.
+        :type id: int
+        :param name: The label to use for this account
+        :type name: str
+        """
+        req = {
+            'id': id,
+            'name': name,
+        }
+        return self.do('PUT', '/api/1/accounts/{id}/name', req=req, auth=True)
 
 
 # vi: ft=python
