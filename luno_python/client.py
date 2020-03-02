@@ -637,7 +637,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/lightning/receive', req=req, auth=True)
 
-    def send(self, address, amount, currency, description=None, external_id=None, message=None):
+    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, has_destination_tag=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
@@ -661,10 +661,14 @@ class Client(BaseClient):
         :type currency: str
         :param description: User description for the transaction to record on the account statement.
         :type description: str
+        :param destination_tag: Optional XRP destination tag. Note that HasDestinationTag must be true if this value is provided.
+        :type destination_tag: int
         :param external_id: Optional unique ID to associate with this withdrawal.
                             Useful to prevent duplicate sends in case of failure.
                             This supports all alphanumeric characters, as well as "-" and "_".
         :type external_id: str
+        :param has_destination_tag: Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
+        :type has_destination_tag: bool
         :param message: Message to send to the recipient.
                         This is only relevant when sending to an email address.
         :type message: str
@@ -674,7 +678,9 @@ class Client(BaseClient):
             'amount': amount,
             'currency': currency,
             'description': description,
+            'destination_tag': destination_tag,
             'external_id': external_id,
+            'has_destination_tag': has_destination_tag,
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
