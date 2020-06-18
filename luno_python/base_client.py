@@ -11,7 +11,7 @@ except ImportError:
 from . import VERSION
 from .error import APIError
 
-DEFAULT_BASE_URL = 'https://api.mybitx.com'
+DEFAULT_BASE_URL = 'https://api.luno.com'
 DEFAULT_TIMEOUT = 10
 PYTHON_VERSION = platform.python_version()
 SYSTEM = platform.system()
