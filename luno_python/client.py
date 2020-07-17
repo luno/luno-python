@@ -309,6 +309,23 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/orderbook', req=req, auth=False)
 
+    def get_order_v2(self, id):
+        """Makes a call to GET /api/exchange/2/orders/{id}.
+
+        Get the details for an order.<br>
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <code>Perm_R_Orders</code>
+
+        :param id: Order reference
+        :type id: str
+        """
+        req = {
+            'id': id,
+        }
+        return self.do('GET', '/api/exchange/2/orders/{id}', req=req, auth=True)
+
     def get_quote(self, id):
         """Makes a call to GET /api/1/quotes/{id}.
 
@@ -400,6 +417,33 @@ class Client(BaseClient):
             'state': state,
         }
         return self.do('GET', '/api/1/listorders', req=req, auth=True)
+
+    def list_orders_v2(self, created_before=None, limit=None, pair=None, status=None):
+        """Makes a call to GET /api/exchange/2/listorders.
+
+        Returns a list of the most recently placed orders. The list is truncated
+        after 100 items by default<br>
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <Code>Perm_R_Orders</Code>
+
+        :param created_before: Filter to orders created before this timestamp (Unix milliseconds)
+        :type created_before: int
+        :param limit: Limit to this many orders
+        :type limit: int
+        :param pair: Filter to only orders of this currency pair
+        :type pair: str
+        :param status: Filter to only orders of this status
+        :type status: str
+        """
+        req = {
+            'created_before': created_before,
+            'limit': limit,
+            'pair': pair,
+            'status': status,
+        }
+        return self.do('GET', '/api/exchange/2/listorders', req=req, auth=True)
 
     def list_pending_transactions(self, id):
         """Makes a call to GET /api/1/accounts/{id}/pending.
@@ -522,7 +566,7 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/withdrawals', req=None, auth=True)
 
-    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None):
+    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None):
         """Makes a call to POST /api/1/postorder.
 
         Create a new Trade Order.
@@ -556,6 +600,17 @@ class Client(BaseClient):
                           If the best bid is ZAR 100,000 and you place a post-only ask at ZAR 101,000,
                           your order won't trade but will go into the order book.
         :type post_only: bool
+        :param stop_direction: Side of the trigger price to activate the order. This should be set if `stop_price` is also
+                               set.
+
+                               `RELATIVE_LAST_TRADE` will automatically infer the direction based on the last
+                               trade price and the stop price. If last trade price is less than stop price then stop
+                               direction is ABOVE otherwise is BELOW.
+        :type stop_direction: str
+        :param stop_price: Trigger trade price to activate this order as a decimal string. If this
+                           is set then this is treated as a Stop Limit Order and `stop_direction`
+                           is expected to be set too.
+        :type stop_price: float
         """
         req = {
             'pair': pair,
@@ -565,6 +620,8 @@ class Client(BaseClient):
             'base_account_id': base_account_id,
             'counter_account_id': counter_account_id,
             'post_only': post_only,
+            'stop_direction': stop_direction,
+            'stop_price': stop_price,
         }
         return self.do('POST', '/api/1/postorder', req=req, auth=True)
 
@@ -722,7 +779,7 @@ class Client(BaseClient):
 
         Request to stop an Order.
 
-        <b>Note!</b>: Once as Order has been completed, it can not be reversed.
+        <b>Note!</b>: Once an Order has been completed, it can not be reversed.
         The return value from this request will indicate if the Stop request was successful or not.
 
         Permissions required: <code>Perm_W_Orders</code>
