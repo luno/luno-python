@@ -234,24 +234,6 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/funding_address', req=req, auth=True)
 
-    def get_lightning_receive(self, id):
-        """Makes a call to GET /api/1/lightning/receive/{id}.
-
-        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-        The risks are limited api availability and channel capacity.
-
-        Lookup the status of a Lightning Receive Invoice.
-
-        Permissions required: <code>Perm_W_Send</code>
-
-        :param id: ID of invoice.
-        :type id: int
-        """
-        req = {
-            'id': id,
-        }
-        return self.do('GET', '/api/1/lightning/receive/{id}', req=req, auth=True)
-
     def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
 
@@ -418,30 +400,30 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/listorders', req=req, auth=True)
 
-    def list_orders_v2(self, created_before=None, limit=None, pair=None, status=None):
+    def list_orders_v2(self, closed=None, created_before=None, limit=None, pair=None):
         """Makes a call to GET /api/exchange/2/listorders.
 
-        Returns a list of the most recently placed orders. The list is truncated
-        after 100 items by default<br>
+        Returns a list of the most recently placed orders. This endpoint will list
+        up to 100 open orders by default.<br>
         This endpoint is in BETA, behaviour and specification may change without
         any previous notice.
 
         Permissions required: <Code>Perm_R_Orders</Code>
 
+        :param closed: If true, will return closed orders instead of open orders.
+        :type closed: bool
         :param created_before: Filter to orders created before this timestamp (Unix milliseconds)
         :type created_before: int
         :param limit: Limit to this many orders
         :type limit: int
-        :param pair: Filter to only orders of this currency pair
+        :param pair: Filter to only orders of this currency pair.
         :type pair: str
-        :param status: Filter to only orders of this status
-        :type status: str
         """
         req = {
+            'closed': closed,
             'created_before': created_before,
             'limit': limit,
             'pair': pair,
-            'status': status,
         }
         return self.do('GET', '/api/exchange/2/listorders', req=req, auth=True)
 
@@ -566,6 +548,15 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/withdrawals', req=None, auth=True)
 
+    def markets(self):
+        """Makes a call to GET /api/exchange/1/markets.
+
+        Get all supported markets parameter information like price scale, min and
+        max volumes and market ID.
+
+        """
+        return self.do('GET', '/api/exchange/1/markets', req=None, auth=False)
+
     def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None):
         """Makes a call to POST /api/1/postorder.
 
@@ -664,36 +655,6 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def receive_lightning(self, amount, currency=None, description=None, expires_at=None):
-        """Makes a call to POST /api/1/lightning/receive.
-
-        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-        The risks are limited api availability and channel capacity.
-
-        Create a lightning invoice which can be used to receive
-        BTC payments over the lightning network.
-
-        Permissions required: <code>Perm_W_Send</code>
-
-        :param amount: Amount to send as a decimal string.
-        :type amount: float
-        :param currency: Currency to receive (defaults to XBT).
-        :type currency: str
-        :param description: User defined description to add to lightning invoice.
-        :type description: str
-        :param expires_at: Unix expiry timestamp (ms).
-
-                           in query
-        :type expires_at: int
-        """
-        req = {
-            'amount': amount,
-            'currency': currency,
-            'description': description,
-            'expires_at': expires_at,
-        }
-        return self.do('POST', '/api/1/lightning/receive', req=req, auth=True)
-
     def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, has_destination_tag=None, message=None):
         """Makes a call to POST /api/1/send.
 
@@ -741,38 +702,6 @@ class Client(BaseClient):
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
-
-    def send_lightning(self, payment_request, currency=None, description=None, external_id=None):
-        """Makes a call to POST /api/1/lightning/send.
-
-        <b>Alpha warning!</b> The Lightning API is still in Alpha stage.
-        The risks are limited api availability and channel capacity.
-
-        Send Bitcoin over the Lightning network from your Bitcoin Account.
-
-        Warning! Cryptocurrency transactions are irreversible. Please ensure your
-        program has been thoroughly tested before using this call.
-
-        Permissions required: <code>Perm_W_Send</code>
-
-        :param payment_request: Lightning payment request to send to.
-        :type payment_request: str
-        :param currency: Currency to send.
-        :type currency: str
-        :param description: Description for the transaction to record on the account statement.
-        :type description: str
-        :param external_id: Optional unique ID to associate with this withdrawal. Useful to prevent
-                            duplicate sends in case of failure. It supports all alphanumeric
-                            characters, as well as "-" and "_".
-        :type external_id: str
-        """
-        req = {
-            'payment_request': payment_request,
-            'currency': currency,
-            'description': description,
-            'external_id': external_id,
-        }
-        return self.do('POST', '/api/1/lightning/send', req=req, auth=True)
 
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
