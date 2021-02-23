@@ -249,39 +249,18 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/orders/{id}', req=req, auth=True)
 
-    def get_order_book(self, pair):
-        """Makes a call to GET /api/1/orderbook_top.
-
-        Returns a list of the top 100 <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
-
-        Ask Orders are sorted by price ascending.
-
-        Bid Orders are sorted by price descending.
-
-        Orders of the same price are aggregated.
-
-        :param pair: Currency pair of the Orders to retrieve
-        :type pair: str
-        """
-        req = {
-            'pair': pair,
-        }
-        return self.do('GET', '/api/1/orderbook_top', req=req, auth=False)
-
     def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
-        This request returns a list of all <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+        This request returns all `bids` and `asks`, for the currency pair specified, in the Order Book.
 
-        Ask orders are sorted by price ascending.
+        `asks` are sorted by price ascending and `bids` are sorted by price descending.
 
-        Bid orders are sorted by price descending.
+        Multiple orders at the same price are aggregated.
 
-        Multiple orders at the same price are not aggregated.
-
-        <b>Warning:</b> This may return a large amount of data.
-        Users are recommended to use the <a href="#operation/getOrderBook">top 100 bids and asks</a>
-        or the <a href="#tag/streaming-API-(beta)">Streaming API</a>.
+        <b>WARNING:</b> This may return a large amount of data.
+        Users are recommended to use the <a href="#operation/getOrderBookTop">top 100 bids and asks</a>
+        or the <a href="#tag/Streaming-API">Streaming API</a>.
 
         :param pair: Currency pair of the Orders to retrieve
         :type pair: str
@@ -290,6 +269,18 @@ class Client(BaseClient):
             'pair': pair,
         }
         return self.do('GET', '/api/1/orderbook', req=req, auth=False)
+
+    def get_order_book_top(self):
+        """Makes a call to GET /api/1/orderbook_top.
+
+        This request returns the best 100 `bids` and `asks`, for the currency pair specified, in the Order Book.
+
+        `asks` are sorted by price ascending and `bids` are sorted by price descending.
+
+        Multiple orders at the same price are aggregated.
+
+        """
+        return self.do('GET', '/api/1/orderbook_top', req=None, auth=False)
 
     def get_order_v2(self, id):
         """Makes a call to GET /api/exchange/2/orders/{id}.
@@ -403,8 +394,9 @@ class Client(BaseClient):
     def list_orders_v2(self, closed=None, created_before=None, limit=None, pair=None):
         """Makes a call to GET /api/exchange/2/listorders.
 
-        Returns a list of the most recently placed orders. This endpoint will list
-        up to 100 open orders by default.<br>
+        Returns a list of the most recently placed orders ordered from newest to
+        oldest. This endpoint will list up to 100 most recent open orders by
+        default.<br>
         This endpoint is in BETA, behaviour and specification may change without
         any previous notice.
 
@@ -494,6 +486,42 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/accounts/{id}/transactions', req=req, auth=True)
 
+    def list_transfers(self, account_id, before=None, limit=None):
+        """Makes a call to GET /api/exchange/1/transfers.
+
+        Returns a list of the most recent confirmed transfers ordered from newest to
+        oldest.
+        This includes bank transfers, card payments, or on-chain transactions that
+        have been reflected on your account available balance.
+
+        Note that the Transfer `amount` is always a positive value and you should
+        use the `inbound` flag to determine the direction of the transfer.
+
+        If you need to paginate the results you can set the `before` parameter to
+        the last returned transfer `created_at` field value and repeat the request
+        until you have all the transfers you need.
+        This endpoint will list up to 100 transfers at a time by default.
+
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <Code>Perm_R_Transfers</Code>
+
+        :param account_id: Unique identifier of the account to list the transfers from.
+        :type account_id: int
+        :param before: Filter to transfers created before this timestamp (Unix milliseconds).
+                       The default value (0) will return the latest transfers on the account.
+        :type before: int
+        :param limit: Limit to this many transfers.
+        :type limit: int
+        """
+        req = {
+            'account_id': account_id,
+            'before': before,
+            'limit': limit,
+        }
+        return self.do('GET', '/api/exchange/1/transfers', req=req, auth=True)
+
     def list_user_trades(self, pair, after_seq=None, before=None, before_seq=None, limit=None, since=None, sort_desc=None):
         """Makes a call to GET /api/1/listtrades.
 
@@ -551,8 +579,8 @@ class Client(BaseClient):
     def markets(self):
         """Makes a call to GET /api/exchange/1/markets.
 
-        Get all supported markets parameter information like price scale, min and
-        max volumes and market ID.
+        List all supported markets parameter information like price scale, min and
+        max order volumes and market ID.
 
         """
         return self.do('GET', '/api/exchange/1/markets', req=None, auth=False)
