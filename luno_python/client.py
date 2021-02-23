@@ -249,6 +249,23 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/orders/{id}', req=req, auth=True)
 
+    def get_order_book(self, pair):
+        """Makes a call to GET /api/1/orderbook_top.
+
+        This request returns the best 100 `bids` and `asks`, for the currency pair specified, in the Order Book.
+
+        `asks` are sorted by price ascending and `bids` are sorted by price descending.
+
+        Multiple orders at the same price are aggregated.
+
+        :param pair: Currency pair of the Orders to retrieve
+        :type pair: str
+        """
+        req = {
+            'pair': pair,
+        }
+        return self.do('GET', '/api/1/orderbook_top', req=req, auth=False)
+
     def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
@@ -256,7 +273,7 @@ class Client(BaseClient):
 
         `asks` are sorted by price ascending and `bids` are sorted by price descending.
 
-        Multiple orders at the same price are aggregated.
+        Multiple orders at the same price are not aggregated.
 
         <b>WARNING:</b> This may return a large amount of data.
         Users are recommended to use the <a href="#operation/getOrderBookTop">top 100 bids and asks</a>
@@ -269,18 +286,6 @@ class Client(BaseClient):
             'pair': pair,
         }
         return self.do('GET', '/api/1/orderbook', req=req, auth=False)
-
-    def get_order_book_top(self):
-        """Makes a call to GET /api/1/orderbook_top.
-
-        This request returns the best 100 `bids` and `asks`, for the currency pair specified, in the Order Book.
-
-        `asks` are sorted by price ascending and `bids` are sorted by price descending.
-
-        Multiple orders at the same price are aggregated.
-
-        """
-        return self.do('GET', '/api/1/orderbook_top', req=None, auth=False)
 
     def get_order_v2(self, id):
         """Makes a call to GET /api/exchange/2/orders/{id}.
