@@ -20,8 +20,12 @@ if __name__ == '__main__':
     print(res)
     time.sleep(0.5)
 
-    since = int(time.time()*1000)-24*60*60*1000
+    since = int(time.time()*1000)-24*60*59*1000
     res = c.list_trades(pair='XBTZAR', since=since)
+    print(res)
+    time.sleep(0.5)
+
+    res = c.get_candles(pair='XBTZAR', since=since, duration=300)
     print(res)
     time.sleep(0.5)
 

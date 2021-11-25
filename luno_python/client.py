@@ -21,7 +21,7 @@ class Client(BaseClient):
     def cancel_withdrawal(self, id):
         """Makes a call to DELETE /api/1/withdrawals/{id}.
 
-        Cancel a withdrawal request.
+        Cancels a withdrawal request.
         This can only be done if the request is still in state <code>PENDING</code>.
 
         Permissions required: <code>Perm_W_Withdrawals</code>
@@ -76,45 +76,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/funding_address', req=req, auth=True)
 
-    def create_quote(self, base_amount, pair, type, base_account_id=None, counter_account_id=None):
-        """Makes a call to POST /api/1/quotes.
-
-        Creates a new quote to buy or sell a particular amount of a base currency for a counter currency.
-
-        Users can specify either the exact amount to pay or the exact amount to receive.
-
-        For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote to BUY 0.1 XBTZAR.
-        The returned quote includes the appropriate ZAR amount.
-        To buy Bitcoin using exactly ZAR 100, create a quote to SELL 100 ZARXBT.
-        The returned quote specifies the Bitcoin as the counter amount returned.
-
-        An error is returned if the Account is not verified for the currency pair,
-        or if the Account would have insufficient balance to ever exercise the quote.
-
-        Permissions required: <code>Perm_W_Orders</code>
-
-        :param base_amount: Amount to buy or sell in the pair base currency.
-        :type base_amount: float
-        :param pair: Currency pair to trade. The pair can also be flipped if you want to buy
-                     or sell the counter currency (e.g. ZARXBT).
-        :type pair: str
-        :param type: <code>BUY</code> or <code>SELL</code>.
-        :type type: str
-        :param base_account_id: Optional Account for the pair's base currency.
-        :type base_account_id: int
-        :param counter_account_id: Optional Account for the pair's counter currency.
-        :type counter_account_id: int
-        """
-        req = {
-            'base_amount': base_amount,
-            'pair': pair,
-            'type': type,
-            'base_account_id': base_account_id,
-            'counter_account_id': counter_account_id,
-        }
-        return self.do('POST', '/api/1/quotes', req=req, auth=True)
-
-    def create_withdrawal(self, amount, type, beneficiary_id=None, external_id=None, reference=None):
+    def create_withdrawal(self, amount, type, beneficiary_id=None, external_id=None, fast=None, reference=None):
         """Makes a call to POST /api/1/withdrawals.
 
         Creates a new withdrawal request to the specified beneficiary.
@@ -123,7 +85,7 @@ class Client(BaseClient):
 
         :param amount: Amount to withdraw. The currency withdrawn depends on the type setting.
         :type amount: float
-        :param type: Withdrawal type.
+        :param type: Withdrawal method.
         :type type: str
         :param beneficiary_id: The beneficiary ID of the bank account the withdrawal will be paid out to.
                                This parameter is required if the user has set up multiple beneficiaries.
@@ -133,6 +95,11 @@ class Client(BaseClient):
                             Useful to prevent duplicate sends.
                             This field supports all alphanumeric characters including "-" and "_".
         :type external_id: str
+        :param fast: If true, it will be a fast withdrawal if possible. Fast withdrawals come with a fee.
+                     Currently fast withdrawals are only available for `type=ZAR_EFT`; for other types, an error is returned.
+                     Fast withdrawals are not possible for Bank of Baroda, Deutsche Bank, Merrill Lynch South Africa, UBS, Postbank and Tyme Bank.
+                     The fee to be charged is the same as when withdrawing from the UI.
+        :type fast: bool
         :param reference: For internal use.
         :type reference: str
         """
@@ -141,44 +108,10 @@ class Client(BaseClient):
             'type': type,
             'beneficiary_id': beneficiary_id,
             'external_id': external_id,
+            'fast': fast,
             'reference': reference,
         }
         return self.do('POST', '/api/1/withdrawals', req=req, auth=True)
-
-    def discard_quote(self, id):
-        """Makes a call to DELETE /api/1/quotes/{id}.
-
-        Discard a Quote.
-        Once a Quote has been discarded, it cannot be exercised even if it has not expired.
-
-        Permissions required: <code>Perm_W_Orders</code>
-
-        :param id: ID of the quote to discard.
-        :type id: int
-        """
-        req = {
-            'id': id,
-        }
-        return self.do('DELETE', '/api/1/quotes/{id}', req=req, auth=True)
-
-    def exercise_quote(self, id):
-        """Makes a call to PUT /api/1/quotes/{id}.
-
-        Exercise a quote to perform the Trade.
-        If there is sufficient balance available in the Account,
-        it will be debited and the counter amount credited.
-
-        An error is returned if the quote has expired or if the Account has insufficient available balance.
-
-        Permissions required: <code>Perm_W_Orders</code>
-
-        :param id: ID of the quote to exercise.
-        :type id: int
-        """
-        req = {
-            'id': id,
-        }
-        return self.do('PUT', '/api/1/quotes/{id}', req=req, auth=True)
 
     def get_balances(self, assets=None):
         """Makes a call to GET /api/1/balance.
@@ -188,13 +121,41 @@ class Client(BaseClient):
         Permissions required: <code>Perm_R_Balance</code>
 
         :param assets: Only return balances for wallets with these currencies (if not provided,
-                       all balances will be returned)
+                       all balances will be returned). To request balances for multiple currencies,
+                       pass the parameter multiple times,
+                       e.g. `assets=XBT&assets=ETH`.
         :type assets: list
         """
         req = {
             'assets': assets,
         }
         return self.do('GET', '/api/1/balance', req=req, auth=True)
+
+    def get_candles(self, duration, pair, since):
+        """Makes a call to GET /api/exchange/1/candles.
+
+        Get candlestick market data from the specified time until now, from the oldest to the most recent.
+
+        Permissions required: <code>MP_None</code>
+
+        :param duration: Candle duration in seconds.
+                         For example, 300 corresponds to 5m candles. Currently supported
+                         durations are: 60 (1m), 300 (5m), 900 (15m), 1800 (30m), 3600 (1h),
+                         10800 (3h), 14400 (4h), 28800 (8h), 86400 (24h), 259200 (3d), 604800
+                         (7d).
+        :type duration: int
+        :param pair: Currency pair
+        :type pair: str
+        :param since: Filter to candles starting on or after this timestamp (Unix milliseconds).
+                      Only up to 1000 of the earliest candles are returned.
+        :type since: int
+        """
+        req = {
+            'duration': duration,
+            'pair': pair,
+            'since': since,
+        }
+        return self.do('GET', '/api/exchange/1/candles', req=req, auth=True)
 
     def get_fee_info(self, pair):
         """Makes a call to GET /api/1/fee_info.
@@ -234,6 +195,31 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/funding_address', req=req, auth=True)
 
+    def get_move(self, client_move_id=None, id=None):
+        """Makes a call to GET /api/exchange/1/move.
+
+        Get a specific move funds instruction by either <code>id</code> or
+        <code>client_move_id</code>. If both are provided an API error will be
+        returned.
+
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <code>MP_None</code>
+
+        :param client_move_id: Get by the user defined ID. This is mutually exclusive with <code>id</code> and is required if <code>id</code> is
+                               not provided.
+        :type client_move_id: str
+        :param id: Get by the system ID. This is mutually exclusive with <code>client_move_id</code> and is required if
+                   <code>client_move_id</code> is not provided.
+        :type id: str
+        """
+        req = {
+            'client_move_id': client_move_id,
+            'id': id,
+        }
+        return self.do('GET', '/api/exchange/1/move', req=req, auth=True)
+
     def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
 
@@ -241,7 +227,7 @@ class Client(BaseClient):
 
         Permissions required: <code>Perm_R_Orders</code>
 
-        :param id: The order ID.
+        :param id: Order reference
         :type id: str
         """
         req = {
@@ -252,13 +238,11 @@ class Client(BaseClient):
     def get_order_book(self, pair):
         """Makes a call to GET /api/1/orderbook_top.
 
-        Returns a list of the top 100 <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+        This request returns the best 100 `bids` and `asks`, for the currency pair specified, in the Order Book.
 
-        Ask Orders are sorted by price ascending.
+        `asks` are sorted by price ascending and `bids` are sorted by price descending.
 
-        Bid Orders are sorted by price descending.
-
-        Orders of the same price are aggregated.
+        Multiple orders at the same price are aggregated.
 
         :param pair: Currency pair of the Orders to retrieve
         :type pair: str
@@ -271,17 +255,15 @@ class Client(BaseClient):
     def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
 
-        This request returns a list of all <em>bids</em> and <em>asks</em> for the currency pair specified in the Order Book.
+        This request returns all `bids` and `asks`, for the currency pair specified, in the Order Book.
 
-        Ask orders are sorted by price ascending.
-
-        Bid orders are sorted by price descending.
+        `asks` are sorted by price ascending and `bids` are sorted by price descending.
 
         Multiple orders at the same price are not aggregated.
 
-        <b>Warning:</b> This may return a large amount of data.
-        Users are recommended to use the <a href="#operation/getOrderBook">top 100 bids and asks</a>
-        or the <a href="#tag/streaming-API-(beta)">Streaming API</a>.
+        <b>WARNING:</b> This may return a large amount of data.
+        Users are recommended to use the <a href="#operation/getOrderBookTop">top 100 bids and asks</a>
+        or the <a href="#tag/Streaming-API">Streaming API</a>.
 
         :param pair: Currency pair of the Orders to retrieve
         :type pair: str
@@ -294,9 +276,7 @@ class Client(BaseClient):
     def get_order_v2(self, id):
         """Makes a call to GET /api/exchange/2/orders/{id}.
 
-        Get the details for an order.<br>
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
+        Get the details for an order.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -308,20 +288,23 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/exchange/2/orders/{id}', req=req, auth=True)
 
-    def get_quote(self, id):
-        """Makes a call to GET /api/1/quotes/{id}.
+    def get_order_v3(self, client_order_id=None, id=None):
+        """Makes a call to GET /api/exchange/3/order.
 
-        Get the latest status of a quote by its id.
-
+        Get the details for an order by order reference or client order ID.
+        Exactly one of the two parameters must be provided, otherwise an error is returned.
         Permissions required: <code>Perm_R_Orders</code>
 
-        :param id: ID of the quote to retrieve.
-        :type id: int
+        :param client_order_id: Client Order ID has the value that was passed in when the Order was posted.
+        :type client_order_id: str
+        :param id: Order reference
+        :type id: str
         """
         req = {
+            'client_order_id': client_order_id,
             'id': id,
         }
-        return self.do('GET', '/api/1/quotes/{id}', req=req, auth=True)
+        return self.do('GET', '/api/exchange/3/order', req=req, auth=True)
 
     def get_ticker(self, pair):
         """Makes a call to GET /api/1/ticker.
@@ -338,15 +321,22 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/ticker', req=req, auth=False)
 
-    def get_tickers(self):
+    def get_tickers(self, pair=None):
         """Makes a call to GET /api/1/tickers.
 
         Returns the latest ticker indicators from all active Luno exchanges.
 
         Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 
+        :param pair: Return tickers for multiple markets (if not provided, all tickers will be returned).
+                     To request tickers for multiple markets, pass the parameter multiple times,
+                     e.g. `pair=XBTZAR&pair=ETHZAR`.
+        :type pair: list
         """
-        return self.do('GET', '/api/1/tickers', req=None, auth=False)
+        req = {
+            'pair': pair,
+        }
+        return self.do('GET', '/api/1/tickers', req=req, auth=False)
 
     def get_withdrawal(self, id):
         """Makes a call to GET /api/1/withdrawals/{id}.
@@ -373,13 +363,34 @@ class Client(BaseClient):
         """
         return self.do('GET', '/api/1/beneficiaries', req=None, auth=True)
 
+    def list_moves(self, before=None, limit=None):
+        """Makes a call to GET /api/exchange/1/move/list_moves.
+
+        Returns a list of the most recent moves ordered from newest to oldest.
+        This endpoint will list up to 100 most recent moves by default.
+
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <code>MP_None</code>
+
+        :param before: Filter to moves requested before this timestamp (Unix milliseconds)
+        :type before: int
+        :param limit: Limit to this many moves
+        :type limit: int
+        """
+        req = {
+            'before': before,
+            'limit': limit,
+        }
+        return self.do('GET', '/api/exchange/1/move/list_moves', req=req, auth=True)
+
     def list_orders(self, created_before=None, limit=None, pair=None, state=None):
         """Makes a call to GET /api/1/listorders.
 
         Returns a list of the most recently placed Orders.
         Users can specify an optional <code>state=PENDING</code> parameter to restrict the results to only open Orders.
         Users can also specify the market by using the optional currency pair parameter.
-        The list is truncated after 100 items.
 
         Permissions required: <code>Perm_R_Orders</code>
 
@@ -403,10 +414,9 @@ class Client(BaseClient):
     def list_orders_v2(self, closed=None, created_before=None, limit=None, pair=None):
         """Makes a call to GET /api/exchange/2/listorders.
 
-        Returns a list of the most recently placed orders. This endpoint will list
-        up to 100 open orders by default.<br>
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
+        Returns a list of the most recently placed orders ordered from newest to
+        oldest. This endpoint will list up to 100 most recent open orders by
+        default.
 
         Permissions required: <Code>Perm_R_Orders</Code>
 
@@ -447,15 +457,18 @@ class Client(BaseClient):
     def list_trades(self, pair, since=None):
         """Makes a call to GET /api/1/trades.
 
-        Returns a list of the most recent Trades for the specified currency pair in the last 24 hours.
-        At most 100 results are returned per call.
+        Returns a list of recent trades for the specified currency pair. At most
+        100 trades are returned per call and never trades older than 24h. The
+        trades are sorted from newest to oldest.
 
         Please see the <a href="#tag/currency ">Currency list</a> for the complete list of supported currency pairs.
 
-        :param pair: Currency pair
+        :param pair: Currency pair of the market to list the trades from
         :type pair: str
         :param since: Fetch trades executed after this time, specified as a Unix timestamp in
-                      milliseconds.
+                      milliseconds. An error will be returned if this is before 24h ago. Use
+                      this parameter to either restrict to a shorter window or to iterate over
+                      the trades in case you need more than the 100 most recent trades.
         :type since: int
         """
         req = {
@@ -494,6 +507,42 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/accounts/{id}/transactions', req=req, auth=True)
 
+    def list_transfers(self, account_id, before=None, limit=None):
+        """Makes a call to GET /api/exchange/1/transfers.
+
+        Returns a list of the most recent confirmed transfers ordered from newest to
+        oldest.
+        This includes bank transfers, card payments, or on-chain transactions that
+        have been reflected on your account available balance.
+
+        Note that the Transfer `amount` is always a positive value and you should
+        use the `inbound` flag to determine the direction of the transfer.
+
+        If you need to paginate the results you can set the `before` parameter to
+        the last returned transfer `created_at` field value and repeat the request
+        until you have all the transfers you need.
+        This endpoint will list up to 100 transfers at a time by default.
+
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <Code>Perm_R_Transfers</Code>
+
+        :param account_id: Unique identifier of the account to list the transfers from.
+        :type account_id: int
+        :param before: Filter to transfers created before this timestamp (Unix milliseconds).
+                       The default value (0) will return the latest transfers on the account.
+        :type before: int
+        :param limit: Limit to this many transfers.
+        :type limit: int
+        """
+        req = {
+            'account_id': account_id,
+            'before': before,
+            'limit': limit,
+        }
+        return self.do('GET', '/api/exchange/1/transfers', req=req, auth=True)
+
     def list_user_trades(self, pair, after_seq=None, before=None, before_seq=None, limit=None, since=None, sort_desc=None):
         """Makes a call to GET /api/1/listtrades.
 
@@ -514,14 +563,14 @@ class Client(BaseClient):
         :param after_seq: Filter to trades from (including) this sequence number.
                           Default behaviour is not to include this filter.
         :type after_seq: int
-        :param before: Filter to trades before this timestamp.
+        :param before: Filter to trades before this timestamp (Unix milliseconds).
         :type before: int
         :param before_seq: Filter to trades before (excluding) this sequence number.
                            Default behaviour is not to include this filter.
         :type before_seq: int
         :param limit: Limit to this number of trades (default 100).
         :type limit: int
-        :param since: Filter to trades on or after this timestamp.
+        :param since: Filter to trades on or after this timestamp (Unix milliseconds).
         :type since: int
         :param sort_desc: If set to true, sorts trades in descending order, otherwise ascending
                           order will be assumed.
@@ -538,29 +587,71 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/listtrades', req=req, auth=True)
 
-    def list_withdrawals(self):
+    def list_withdrawals(self, before_id=None, limit=None):
         """Makes a call to GET /api/1/withdrawals.
 
         Returns a list of withdrawal requests.
 
         Permissions required: <code>Perm_R_Withdrawals</code>
 
+        :param before_id: Filter to withdrawals requested on or before the withdrawal with this ID.
+                          Can be used for pagination.
+        :type before_id: int
+        :param limit: Limit to this many withdrawals
+        :type limit: int
         """
-        return self.do('GET', '/api/1/withdrawals', req=None, auth=True)
+        req = {
+            'before_id': before_id,
+            'limit': limit,
+        }
+        return self.do('GET', '/api/1/withdrawals', req=req, auth=True)
 
     def markets(self):
         """Makes a call to GET /api/exchange/1/markets.
 
-        Get all supported markets parameter information like price scale, min and
-        max volumes and market ID.
+        List all supported markets parameter information like price scale, min and
+        max order volumes and market ID.
 
         """
         return self.do('GET', '/api/exchange/1/markets', req=None, auth=False)
 
-    def post_limit_order(self, pair, price, type, volume, base_account_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None):
-        """Makes a call to POST /api/1/postorder.
+    def move(self, amount, credit_account_id, debit_account_id, client_move_id=None):
+        """Makes a call to POST /api/exchange/1/move.
 
-        Create a new Trade Order.
+        Move funds between two of your accounts with the same currency
+        The funds may not be moved by the time the request returns. The GET method
+        can be used to poll for the move's status.
+
+        Note: moves will show as transactions, but not as transfers.
+
+        This endpoint is in BETA, behaviour and specification may change without
+        any previous notice.
+
+        Permissions required: <code>MP_None_Write</code>
+
+        :param amount: Amount to transfer. Must be positive.
+        :type amount: float
+        :param credit_account_id: The account to credit the funds to.
+        :type credit_account_id: int
+        :param debit_account_id: The account to debit the funds from.
+        :type debit_account_id: int
+        :param client_move_id: Client move ID.
+                               May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
+                               It will be available in read endpoints, so you can use it to avoid duplicate moves between the same accounts.
+                               Values must be unique across all your successful calls of this endpoint; trying to create a move request
+                               with the same `client_move_id` as one of your past move requests will result in a HTTP 409 Conflict response.
+        :type client_move_id: str
+        """
+        req = {
+            'amount': amount,
+            'credit_account_id': credit_account_id,
+            'debit_account_id': debit_account_id,
+            'client_move_id': client_move_id,
+        }
+        return self.do('POST', '/api/exchange/1/move', req=req, auth=True)
+
+    def post_limit_order(self, pair, price, type, volume, base_account_id=None, client_order_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None, timestamp=None, ttl=None):
+        """Makes a call to POST /api/1/postorder.
 
         <b>Warning!</b> Orders cannot be reversed once they have executed.
         Please ensure your program has been thoroughly tested before submitting Orders.
@@ -582,6 +673,12 @@ class Client(BaseClient):
         :type volume: float
         :param base_account_id: The base currency Account to use in the trade.
         :type base_account_id: int
+        :param client_order_id: Client order ID.
+                                May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
+                                It will be available in read endpoints, so you can use it to reconcile Luno with your internal system.
+                                Values must be unique across all your successful order creation endpoint calls; trying to create an order
+                                with the same `client_order_id` as one of your past orders will result in a HTTP 409 Conflict response.
+        :type client_order_id: str
         :param counter_account_id: The counter currency Account to use in the trade.
         :type counter_account_id: int
         :param post_only: Post-only Orders will be cancelled if they would otherwise have traded
@@ -602,6 +699,11 @@ class Client(BaseClient):
                            is set then this is treated as a Stop Limit Order and `stop_direction`
                            is expected to be set too.
         :type stop_price: float
+        :param timestamp: Unix timestamp in milliseconds of when the request was created and sent.
+        :type timestamp: int
+        :param ttl: Specifies the number of milliseconds after timestamp the request is valid for.
+                    If `timestamp` is not specified, `ttl` will not be used.
+        :type ttl: int
         """
         req = {
             'pair': pair,
@@ -609,17 +711,18 @@ class Client(BaseClient):
             'type': type,
             'volume': volume,
             'base_account_id': base_account_id,
+            'client_order_id': client_order_id,
             'counter_account_id': counter_account_id,
             'post_only': post_only,
             'stop_direction': stop_direction,
             'stop_price': stop_price,
+            'timestamp': timestamp,
+            'ttl': ttl,
         }
         return self.do('POST', '/api/1/postorder', req=req, auth=True)
 
-    def post_market_order(self, pair, type, base_account_id=None, base_volume=None, counter_account_id=None, counter_volume=None):
+    def post_market_order(self, pair, type, base_account_id=None, base_volume=None, client_order_id=None, counter_account_id=None, counter_volume=None, timestamp=None, ttl=None):
         """Makes a call to POST /api/1/marketorder.
-
-        Create a new Market Order.
 
         A Market Order executes immediately, and either buys as much of the asset that can be bought for a set amount of fiat currency, or sells a set amount of the asset for as much as possible.
 
@@ -640,18 +743,32 @@ class Client(BaseClient):
         :type base_account_id: int
         :param base_volume: For a <code>SELL</code> order: amount of the base currency to use (e.g. how much BTC to sell for EUR in the BTC/EUR market)
         :type base_volume: float
+        :param client_order_id: Client order ID.
+                                May only contain alphanumeric (0-9, a-z, or A-Z) and special characters (_ ; , . -). Maximum length: 255.
+                                It will be available in read endpoints, so you can use it to reconcile Luno with your internal system.
+                                Values must be unique across all your successful order creation endpoint calls; trying to create an order
+                                with the same `client_order_id` as one of your past orders will result in a HTTP 409 Conflict response.
+        :type client_order_id: str
         :param counter_account_id: The counter currency account to use in the trade.
         :type counter_account_id: int
         :param counter_volume: For a <code>BUY</code> order: amount of the counter currency to use (e.g. how much EUR to use to buy BTC in the BTC/EUR market)
         :type counter_volume: float
+        :param timestamp: Unix timestamp in milliseconds of when the request was created and sent.
+        :type timestamp: int
+        :param ttl: Specifies the number of milliseconds after timestamp the request is valid for.
+                    If `timestamp` is not specified, `ttl` will not be used.
+        :type ttl: int
         """
         req = {
             'pair': pair,
             'type': type,
             'base_account_id': base_account_id,
             'base_volume': base_volume,
+            'client_order_id': client_order_id,
             'counter_account_id': counter_account_id,
             'counter_volume': counter_volume,
+            'timestamp': timestamp,
+            'ttl': ttl,
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
@@ -661,6 +778,8 @@ class Client(BaseClient):
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
 
         Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
+
+        <b>Note:</b> This is currently unavailable to users who are verified in countries with money travel rules.
 
         Permissions required: <code>Perm_W_Send</code>
 
@@ -706,7 +825,7 @@ class Client(BaseClient):
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
 
-        Request to stop an Order.
+        Request to cancel an Order.
 
         <b>Note!</b>: Once an Order has been completed, it can not be reversed.
         The return value from this request will indicate if the Stop request was successful or not.
