@@ -187,6 +187,7 @@ async def stream_market(
             url,
             origin='http://localhost/',
             ping_interval=None,
+            max_size=2**21,
     ) as websocket:
 
         auth = json.dumps({
