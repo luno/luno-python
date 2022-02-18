@@ -80,8 +80,7 @@ class _MarketStreamState:
             return
 
         seq = update['sequence']
-        sequenceChange = int(seq) - int(self._sequence)
-        if sequenceChange != 1:
+        if int(seq) != int(self._sequence)+1:
             raise OutOfOrderMessageException()
 
         trades = update.get('trade_updates')
