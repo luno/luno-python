@@ -80,7 +80,7 @@ class _MarketStreamState:
             return
 
         seq = update['sequence']
-        if seq <= self._sequence:
+        if int(seq) != int(self._sequence)+1:
             raise OutOfOrderMessageException()
 
         trades = update.get('trade_updates')
@@ -148,10 +148,8 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
             update_f(pair, state.get_snapshot(), None)
             continue
 
-        try:
-            state.process_update(body)
-        except OutOfOrderMessageException:
-            continue
+        #could raise OutOfOrderMessageException
+        state.process_update(body)
 
         update_f(pair, state.get_snapshot(), body)
 
@@ -188,6 +186,7 @@ async def stream_market(
             url,
             origin='http://localhost/',
             ping_interval=None,
+            max_size=2**21,
     ) as websocket:
 
         auth = json.dumps({
