@@ -822,6 +822,36 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
 
+    def send_fee(self, address, amount, currency):
+        """Makes a call to GET /api/1/send_fee.
+
+        Calculate fees involved with a crypto send request.
+
+        Send address can be to a cryptocurrency receive address, or the email address of another Luno platform user.
+
+        Permissions required: <code>MP_None</code>
+
+        :param address: Destination address or email address.
+
+                        <b>Note</b>:
+                        <ul>
+                        <li>Ethereum addresses must be
+                        <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
+                        <li>Ethereum sends to email addresses are not supported.</li>
+                        </ul>
+        :type address: str
+        :param amount: Amount to send as a decimal string.
+        :type amount: float
+        :param currency: Currency to send.
+        :type currency: str
+        """
+        req = {
+            'address': address,
+            'amount': amount,
+            'currency': currency,
+        }
+        return self.do('GET', '/api/1/send_fee', req=req, auth=True)
+
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
 
