@@ -101,6 +101,7 @@ class Client(BaseClient):
                      The fee to be charged is the same as when withdrawing from the UI.
         :type fast: bool
         :param reference: For internal use.
+                          Deprecated: We don't allow custom references and will remove this soon.
         :type reference: str
         """
         req = {
@@ -177,7 +178,6 @@ class Client(BaseClient):
 
         Returns the default receive address associated with your account and the
         amount received via the address. Users can specify an optional address parameter to return information for a non-default receive address.
-
         In the response, <code>total_received</code> is the total confirmed amount received excluding unconfirmed transactions.
         <code>total_unconfirmed</code> is the total sum of unconfirmed receive transactions.
 
@@ -606,19 +606,24 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/withdrawals', req=req, auth=True)
 
-    def markets(self):
+    def markets(self, pair=None):
         """Makes a call to GET /api/exchange/1/markets.
 
         List all supported markets parameter information like price scale, min and
         max order volumes and market ID.
 
+        :param pair: List of market pairs to return. Requesting only the required pairs will improve response times.
+        :type pair: list
         """
-        return self.do('GET', '/api/exchange/1/markets', req=None, auth=False)
+        req = {
+            'pair': pair,
+        }
+        return self.do('GET', '/api/exchange/1/markets', req=req, auth=False)
 
     def move(self, amount, credit_account_id, debit_account_id, client_move_id=None):
         """Makes a call to POST /api/exchange/1/move.
 
-        Move funds between two of your accounts with the same currency
+        Move funds between two of your transactional accounts with the same currency
         The funds may not be moved by the time the request returns. The GET method
         can be used to poll for the move's status.
 
@@ -650,7 +655,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/exchange/1/move', req=req, auth=True)
 
-    def post_limit_order(self, pair, price, type, volume, base_account_id=None, client_order_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None, timestamp=None, ttl=None):
+    def post_limit_order(self, pair, price, type, volume, base_account_id=None, client_order_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None, time_in_force=None, timestamp=None, ttl=None):
         """Makes a call to POST /api/1/postorder.
 
         <b>Warning!</b> Orders cannot be reversed once they have executed.
@@ -699,6 +704,10 @@ class Client(BaseClient):
                            is set then this is treated as a Stop Limit Order and `stop_direction`
                            is expected to be set too.
         :type stop_price: float
+        :param time_in_force: <code>GTC</code> Good 'Til Cancelled. The order remains open until it is filled or cancelled by the user.</br>
+                              <code>IOC</code> Immediate Or Cancel. The part of the order that cannot be filled immediately will be cancelled. Cannot be post-only.</br>
+                              <code>FOK</code> Fill Or Kill. If the order cannot be filled immediately and completely it will be cancelled before any trade. Cannot be post-only.
+        :type time_in_force: str
         :param timestamp: Unix timestamp in milliseconds of when the request was created and sent.
         :type timestamp: int
         :param ttl: Specifies the number of milliseconds after timestamp the request is valid for.
@@ -716,6 +725,7 @@ class Client(BaseClient):
             'post_only': post_only,
             'stop_direction': stop_direction,
             'stop_price': stop_price,
+            'time_in_force': time_in_force,
             'timestamp': timestamp,
             'ttl': ttl,
         }
@@ -772,12 +782,12 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, has_destination_tag=None, message=None):
+    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
 
-        Sends can be to a cryptocurrency receive address, or the email address of another Luno platform user.
+        Sends can be made to cryptocurrency receive addresses.
 
         <b>Note:</b> This is currently unavailable to users who are verified in countries with money travel rules.
 
@@ -804,8 +814,14 @@ class Client(BaseClient):
                             Useful to prevent duplicate sends in case of failure.
                             This supports all alphanumeric characters, as well as "-" and "_".
         :type external_id: str
+        :param forex_notice_self_declaration: Only required for Foreign Exchange Notification under the Malaysia FEN rules. ForexNoticeSelfDeclaration must be true if the user has exceeded his/her annual investment limit in foreign currency assets.
+        :type forex_notice_self_declaration: bool
         :param has_destination_tag: Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
         :type has_destination_tag: bool
+        :param is_drb: Only required for Foreign Exchange Notification under the Malaysia FEN rules. IsDRB must be true if the user has Domestic Ringgit Borrowing (DRB).
+        :type is_drb: bool
+        :param is_forex_send: Only required for Foreign Exchange Notification under the Malaysia FEN rules. IsForexSend must be true if sending to an address hosted outside of Malaysia.
+        :type is_forex_send: bool
         :param message: Message to send to the recipient.
                         This is only relevant when sending to an email address.
         :type message: str
@@ -817,7 +833,10 @@ class Client(BaseClient):
             'description': description,
             'destination_tag': destination_tag,
             'external_id': external_id,
+            'forex_notice_self_declaration': forex_notice_self_declaration,
             'has_destination_tag': has_destination_tag,
+            'is_drb': is_drb,
+            'is_forex_send': is_forex_send,
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
@@ -887,6 +906,77 @@ class Client(BaseClient):
             'name': name,
         }
         return self.do('PUT', '/api/1/accounts/{id}/name', req=req, auth=True)
+
+    def validate(self, address, currency, address_name=None, beneficiary_name=None, country=None, date_of_birth=None, destination_tag=None, has_destination_tag=None, institution_name=None, is_legal_entity=None, is_private_wallet=None, is_self_send=None, nationality=None, physical_address=None, wallet_name=None):
+        """Makes a call to POST /api/1/address/validate.
+
+        Validate receive addresses, to which a customer wishes to make cryptocurrency sends, are verified under covering
+        regulatory requirements for the customer such as travel rules.
+
+        Permissions required: <code>Perm_W_Send</code>
+
+        :param address: Destination address or email address.
+
+                        <b>Note</b>:
+                        <ul>
+                        <li>Ethereum addresses must be
+                        <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md" target="_blank" rel="nofollow">checksummed</a>.</li>
+                        <li>Ethereum validations of email addresses are not supported.</li>
+                        </ul>
+        :type address: str
+        :param currency: Currency is the currency associated with the address.
+        :type currency: str
+        :param address_name: AddressName is the optional name under which to store the address as in the address book.
+        :type address_name: str
+        :param beneficiary_name: BeneficiaryName is the name of the beneficial owner if is it is a private address
+        :type beneficiary_name: str
+        :param country: Country is the ISO 3166-1 country code of the beneficial owner of the address
+        :type country: str
+        :param date_of_birth: DateOfBirth is the date of birth of the (non-institutional) beneficial owner of the address in the form "YYYY-MM-DD"
+        :type date_of_birth: str
+        :param destination_tag: Optional XRP destination tag. Note that HasDestinationTag must be true if this value is provided.
+        :type destination_tag: int
+        :param has_destination_tag: Optional boolean flag indicating that a XRP destination tag is provided (even if zero).
+        :type has_destination_tag: bool
+        :param institution_name: InstitutionName is the name of the beneficial owner if is it is a legal entities address
+        :type institution_name: str
+        :param is_legal_entity: IsLegalEntity indicates if the address is for a legal entity and not a private beneficiary.
+                                If this field is true then the fields BeneficiaryName, Nationality & DateOfBirth should be empty but the
+                                fields InstitutionName and Country should be populated.
+                                If this field is false and IsSelfSend is false (or empty) then the field InstitutionName should be empty but the
+                                fields BeneficiaryName, Nationality & DateOfBirth and Country should be populated.
+        :type is_legal_entity: bool
+        :param is_private_wallet: IsPrivateWallet indicates if the address is for private wallet and not held at an exchange.
+        :type is_private_wallet: bool
+        :param is_self_send: IsSelfSend to indicate that the address belongs to the customer.
+                             If this field is true then the remaining omitempty fields should not
+                             be populated.
+        :type is_self_send: bool
+        :param nationality: Nationality ISO 3166-1 country code of the nationality of the (non-institutional) beneficial owner of the address
+        :type nationality: str
+        :param physical_address: PhysicalAddress is the legal physical address of the beneficial owner of the crypto address
+        :type physical_address: str
+        :param wallet_name: PrivateWalletName is the name of the private wallet
+        :type wallet_name: str
+        """
+        req = {
+            'address': address,
+            'currency': currency,
+            'address_name': address_name,
+            'beneficiary_name': beneficiary_name,
+            'country': country,
+            'date_of_birth': date_of_birth,
+            'destination_tag': destination_tag,
+            'has_destination_tag': has_destination_tag,
+            'institution_name': institution_name,
+            'is_legal_entity': is_legal_entity,
+            'is_private_wallet': is_private_wallet,
+            'is_self_send': is_self_send,
+            'nationality': nationality,
+            'physical_address': physical_address,
+            'wallet_name': wallet_name,
+        }
+        return self.do('POST', '/api/1/address/validate', req=req, auth=True)
 
 
 # vi: ft=python
