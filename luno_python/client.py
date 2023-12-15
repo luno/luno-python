@@ -45,7 +45,7 @@ class Client(BaseClient):
 
                          Users must be verified to trade currency in order to be able to create an Account.  For more information on the verification process, please see <a href="/help/en/articles/1000168396">How do I verify my identity?</a>.
 
-                         Users have a limit of 4 accounts per currency.
+                         Users have a limit of 10 accounts per currency.
         :type currency: str
         :param name: The label to use for this account
         :type name: str
@@ -201,9 +201,6 @@ class Client(BaseClient):
         Get a specific move funds instruction by either <code>id</code> or
         <code>client_move_id</code>. If both are provided an API error will be
         returned.
-
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
 
         Permissions required: <code>MP_None</code>
 
@@ -369,9 +366,6 @@ class Client(BaseClient):
         Returns a list of the most recent moves ordered from newest to oldest.
         This endpoint will list up to 100 most recent moves by default.
 
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
-
         Permissions required: <code>MP_None</code>
 
         :param before: Filter to moves requested before this timestamp (Unix milliseconds)
@@ -523,9 +517,6 @@ class Client(BaseClient):
         until you have all the transfers you need.
         This endpoint will list up to 100 transfers at a time by default.
 
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
-
         Permissions required: <Code>Perm_R_Transfers</Code>
 
         :param account_id: Unique identifier of the account to list the transfers from.
@@ -628,9 +619,6 @@ class Client(BaseClient):
         can be used to poll for the move's status.
 
         Note: moves will show as transactions, but not as transfers.
-
-        This endpoint is in BETA, behaviour and specification may change without
-        any previous notice.
 
         Permissions required: <code>MP_None_Write</code>
 
@@ -782,7 +770,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, message=None):
+    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, memo=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
@@ -822,6 +810,9 @@ class Client(BaseClient):
         :type is_drb: bool
         :param is_forex_send: Only required for Foreign Exchange Notification under the Malaysia FEN rules. IsForexSend must be true if sending to an address hosted outside of Malaysia.
         :type is_forex_send: bool
+        :param memo: Optional memo string used to provide account information for ATOM, etc. where it holds "account" information
+                     for a generic address.
+        :type memo: str
         :param message: Message to send to the recipient.
                         This is only relevant when sending to an email address.
         :type message: str
@@ -837,6 +828,7 @@ class Client(BaseClient):
             'has_destination_tag': has_destination_tag,
             'is_drb': is_drb,
             'is_forex_send': is_forex_send,
+            'memo': memo,
             'message': message,
         }
         return self.do('POST', '/api/1/send', req=req, auth=True)
@@ -907,7 +899,7 @@ class Client(BaseClient):
         }
         return self.do('PUT', '/api/1/accounts/{id}/name', req=req, auth=True)
 
-    def validate(self, address, currency, address_name=None, beneficiary_name=None, country=None, date_of_birth=None, destination_tag=None, has_destination_tag=None, institution_name=None, is_legal_entity=None, is_private_wallet=None, is_self_send=None, nationality=None, physical_address=None, wallet_name=None):
+    def validate(self, address, currency, address_name=None, beneficiary_name=None, country=None, date_of_birth=None, destination_tag=None, has_destination_tag=None, institution_name=None, is_legal_entity=None, is_private_wallet=None, is_self_send=None, memo=None, nationality=None, physical_address=None, wallet_name=None):
         """Makes a call to POST /api/1/address/validate.
 
         Validate receive addresses, to which a customer wishes to make cryptocurrency sends, are verified under covering
@@ -952,6 +944,9 @@ class Client(BaseClient):
                              If this field is true then the remaining omitempty fields should not
                              be populated.
         :type is_self_send: bool
+        :param memo: Optional memo string used to provide account information for ATOM, etc. where it holds "account" information
+                     for a generic address.
+        :type memo: str
         :param nationality: Nationality ISO 3166-1 country code of the nationality of the (non-institutional) beneficial owner of the address
         :type nationality: str
         :param physical_address: PhysicalAddress is the legal physical address of the beneficial owner of the crypto address
@@ -972,6 +967,7 @@ class Client(BaseClient):
             'is_legal_entity': is_legal_entity,
             'is_private_wallet': is_private_wallet,
             'is_self_send': is_self_send,
+            'memo': memo,
             'nationality': nationality,
             'physical_address': physical_address,
             'wallet_name': wallet_name,
