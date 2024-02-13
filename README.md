@@ -23,9 +23,9 @@ from luno_python.client import Client
 c = Client(api_key_id='key_id', api_key_secret='key_secret')
 try:
   res = c.get_ticker(pair='XBTZAR')
-  print res
+  print(res)
 except Exception as e:
-  print e
+  print(e)
 ```
 
 ### License
