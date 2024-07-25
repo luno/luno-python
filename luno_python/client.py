@@ -56,7 +56,31 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/accounts', req=req, auth=True)
 
-    def create_funding_address(self, asset, name=None):
+    def create_beneficiary(self, account_type, bank_account_number, bank_name, bank_recipient):
+        """Makes a call to POST /api/1/beneficiaries.
+
+        Create a new beneficiary.
+
+        Permissions required: <code>Perm_W_Beneficiaries</code>
+
+        :param account_type: Bank account type
+        :type account_type: str
+        :param bank_account_number: Beneficiary bank account number
+        :type bank_account_number: str
+        :param bank_name: Bank SWIFT code
+        :type bank_name: str
+        :param bank_recipient: The owner of the recipient account
+        :type bank_recipient: str
+        """
+        req = {
+            'account_type': account_type,
+            'bank_account_number': bank_account_number,
+            'bank_name': bank_name,
+            'bank_recipient': bank_recipient,
+        }
+        return self.do('POST', '/api/1/beneficiaries', req=req, auth=True)
+
+    def create_funding_address(self, asset, account_id=None, name=None):
         """Makes a call to POST /api/1/funding_address.
 
         Allocates a new receive address to your account. There is a rate limit of 1
@@ -67,11 +91,14 @@ class Client(BaseClient):
 
         :param asset: Currency code of the asset.
         :type asset: str
+        :param account_id: An optional account_id to assign the new Receive Address too
+        :type account_id: int
         :param name: An optional name for the new Receive Address
         :type name: str
         """
         req = {
             'asset': asset,
+            'account_id': account_id,
             'name': name,
         }
         return self.do('POST', '/api/1/funding_address', req=req, auth=True)
@@ -113,6 +140,21 @@ class Client(BaseClient):
             'reference': reference,
         }
         return self.do('POST', '/api/1/withdrawals', req=req, auth=True)
+
+    def delete_beneficiary(self, id):
+        """Makes a call to DELETE /api/1/beneficiaries/{id}.
+
+        Delete a beneficiary
+
+        Permissions required: <code>Perm_W_Beneficiaries</code>
+
+        :param id: ID of the Beneficiary to delete.
+        :type id: int
+        """
+        req = {
+            'id': id,
+        }
+        return self.do('DELETE', '/api/1/beneficiaries/{id}', req=req, auth=True)
 
     def get_balances(self, assets=None):
         """Makes a call to GET /api/1/balance.
@@ -350,15 +392,19 @@ class Client(BaseClient):
         }
         return self.do('GET', '/api/1/withdrawals/{id}', req=req, auth=True)
 
-    def list_beneficiaries_response(self):
+    def list_beneficiaries(self, bank_recipient=None):
         """Makes a call to GET /api/1/beneficiaries.
 
         Returns a list of bank beneficiaries.
 
         Permissions required: <code>Perm_R_Beneficiaries</code>
 
+        :param bank_recipient:         :type bank_recipient: str
         """
-        return self.do('GET', '/api/1/beneficiaries', req=None, auth=True)
+        req = {
+            'bank_recipient': bank_recipient,
+        }
+        return self.do('GET', '/api/1/beneficiaries', req=req, auth=True)
 
     def list_moves(self, before=None, limit=None):
         """Makes a call to GET /api/exchange/1/move/list_moves.
@@ -411,6 +457,8 @@ class Client(BaseClient):
         Returns a list of the most recently placed orders ordered from newest to
         oldest. This endpoint will list up to 100 most recent open orders by
         default.
+
+        <b>Please note:</b> This data is archived 100 days after an exchange order is completed.
 
         Permissions required: <Code>Perm_R_Orders</Code>
 
@@ -770,7 +818,7 @@ class Client(BaseClient):
         }
         return self.do('POST', '/api/1/marketorder', req=req, auth=True)
 
-    def send(self, address, amount, currency, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, memo=None, message=None):
+    def send(self, address, amount, currency, account_id=None, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, memo=None, message=None):
         """Makes a call to POST /api/1/send.
 
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
@@ -794,6 +842,8 @@ class Client(BaseClient):
         :type amount: float
         :param currency: Currency to send.
         :type currency: str
+        :param account_id: Optional source account. In case of multiple accounts for a single currency, the source account that will provide the funds for the transaction may be specified. If omitted, the default account will be used.
+        :type account_id: int
         :param description: User description for the transaction to record on the account statement.
         :type description: str
         :param destination_tag: Optional XRP destination tag. Note that HasDestinationTag must be true if this value is provided.
@@ -821,6 +871,7 @@ class Client(BaseClient):
             'address': address,
             'amount': amount,
             'currency': currency,
+            'account_id': account_id,
             'description': description,
             'destination_tag': destination_tag,
             'external_id': external_id,
