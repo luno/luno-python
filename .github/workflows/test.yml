@@ -2,7 +2,7 @@ name: Run Tests
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master" ] # Removing master before merging
   pull_request:
     branches: [ "main", "master" ]
 
