@@ -16,6 +16,8 @@ setup(
     keywords='Luno API Bitcoin Ethereum',
     test_suite='tests',
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov', 'requests_mock']
+    extras_require={
+        "test": ["pytest", "pytest-cov", "requests_mock"]
+    },
 )
 
