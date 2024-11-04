@@ -2,9 +2,9 @@ name: Run Tests
 
 on:
   push:
-    branches: [ "main", "master" ] # Removing master before merging
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
