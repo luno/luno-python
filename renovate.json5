@@ -1,17 +1,19 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended',
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
   ],
-  branchConcurrentLimit: 3,
-  labels: [
-    'Bot::Renovate',
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
   ],
-  semanticCommits: 'disabled',
-  commitMessagePrefix: 'renovate:',
-  reviewers: [
-    'echarrod',
-    'adamhicks',
-    'NeilLuno',
-  ],
+  "labels": ["dependencies"],
+  "schedule": ["every weekend"],
+  "python": {
+    "enabled": true
+  }
 }
