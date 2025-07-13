@@ -13,7 +13,4 @@
   ],
   "labels": ["dependencies"],
   "schedule": ["every weekend"],
-  "python": {
-    "enabled": true
-  }
 }
