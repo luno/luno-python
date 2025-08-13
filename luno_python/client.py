@@ -156,7 +156,7 @@ class Client(BaseClient):
         }
         return self.do('DELETE', '/api/1/beneficiaries/{id}', req=req, auth=True)
 
-    def get_balances(self, assets=None):
+    def get_balances(self, assets=None, account_id=None):
         """Makes a call to GET /api/1/balance.
 
         The list of all Accounts and their respective balances for the requesting user.
@@ -168,11 +168,26 @@ class Client(BaseClient):
                        pass the parameter multiple times,
                        e.g. `assets=XBT&assets=ETH`.
         :type assets: list
+        :param account_id: Only return balance for the account with this ID. If provided,
+                          returns a single account object instead of the full response.
+        :type account_id: str
         """
         req = {
             'assets': assets,
         }
-        return self.do('GET', '/api/1/balance', req=req, auth=True)
+        response = self.do('GET', '/api/1/balance', req=req, auth=True)
+        
+        # If account_id is specified, filter to return only that account
+        if account_id is not None:
+            if 'balance' in response:
+                for account in response['balance']:
+                    if str(account.get('account_id')) == str(account_id):
+                        return account
+            # If account_id not found, return None
+            return None
+        
+        # Return full response if no account_id specified (backward compatibility)
+        return response
 
     def get_candles(self, duration, pair, since):
         """Makes a call to GET /api/exchange/1/candles.
