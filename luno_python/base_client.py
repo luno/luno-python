@@ -76,7 +76,7 @@ class BaseClient:
             try:
                 params = json.loads(json.dumps(req))
             except TypeError as e:
-                raise TypeError("luno: request parameters must be JSON-serializable: %s" % str(e))
+                raise TypeError("luno: request parameters must be JSON-serializable: %s" % str(e)) from e
         headers = {"User-Agent": self.make_user_agent()}
         args = dict(timeout=self.timeout, params=params, headers=headers)
         if auth:
