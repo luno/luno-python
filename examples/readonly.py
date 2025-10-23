@@ -1,3 +1,5 @@
+"""Example script demonstrating read-only API calls to Luno."""
+
 import os
 import time
 

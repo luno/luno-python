@@ -1,7 +1,8 @@
+"""Tests for the Luno Python client."""
+
 from decimal import Decimal
 
 import pytest
-import requests
 import requests_mock
 
 try:
@@ -83,6 +84,7 @@ MOCK_MALFORMED_RESPONSE = {"some_other_key": "value"}
 
 
 def test_client():
+    """Test client initialization and configuration."""
     c = Client()
     c.set_auth("api_key_id", "api_key_secret")
     c.set_base_url("base_url")
@@ -95,6 +97,7 @@ def test_client():
 
 
 def test_client_do_basic():
+    """Test basic client do method functionality."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -102,7 +105,7 @@ def test_client_do_basic():
     c.session.mount("mock", adapter)
 
     adapter.register_uri("GET", "mock://test/", text="ok")
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="unknown API error"):
         res = c.do("GET", "/")
 
     adapter.register_uri("GET", "mock://test/", text='{"key":"value"}')
@@ -120,7 +123,7 @@ def test_client_do_basic():
 
 
 def test_get_balances_without_account_id():
-    """Test get_balances without account_id parameter (backward compatibility)"""
+    """Test get_balances without account_id parameter (backward compatibility)."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -137,7 +140,7 @@ def test_get_balances_without_account_id():
 
 
 def test_get_balances_with_valid_account_id():
-    """Test get_balances with valid account_id parameter"""
+    """Test get_balances with valid account_id parameter."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -170,7 +173,7 @@ def test_get_balances_with_valid_account_id():
 
 
 def test_get_balances_with_invalid_account_id():
-    """Test get_balances with invalid account_id parameter"""
+    """Test get_balances with invalid account_id parameter."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -185,7 +188,7 @@ def test_get_balances_with_invalid_account_id():
 
 
 def test_get_balances_with_account_id_and_assets():
-    """Test get_balances with both account_id and assets parameters"""
+    """Test get_balances with both account_id and assets parameters."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -207,7 +210,7 @@ def test_get_balances_with_account_id_and_assets():
 
 
 def test_get_balances_with_account_id_type_conversion():
-    """Test get_balances with account_id type conversion (string vs int)"""
+    """Test get_balances with account_id type conversion (string vs int)."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -229,7 +232,7 @@ def test_get_balances_with_account_id_type_conversion():
 
 
 def test_get_balances_with_empty_balance_response():
-    """Test get_balances when API returns empty balance list"""
+    """Test get_balances when API returns empty balance list."""
     c = Client()
     c.set_base_url("mock://test/")
 
@@ -248,7 +251,7 @@ def test_get_balances_with_empty_balance_response():
 
 
 def test_get_balances_with_malformed_response():
-    """Test get_balances when API returns malformed response"""
+    """Test get_balances when API returns malformed response."""
     c = Client()
     c.set_base_url("mock://test/")
 
