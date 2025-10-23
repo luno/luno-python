@@ -30,9 +30,9 @@ class Client(BaseClient):
         :type id: int
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('DELETE', '/api/1/withdrawals/{id}', req=req, auth=True)
+        return self.do("DELETE", "/api/1/withdrawals/{id}", req=req, auth=True)
 
     def create_account(self, currency, name):
         """Makes a call to POST /api/1/accounts.
@@ -51,10 +51,10 @@ class Client(BaseClient):
         :type name: str
         """
         req = {
-            'currency': currency,
-            'name': name,
+            "currency": currency,
+            "name": name,
         }
-        return self.do('POST', '/api/1/accounts', req=req, auth=True)
+        return self.do("POST", "/api/1/accounts", req=req, auth=True)
 
     def create_beneficiary(self, account_type, bank_account_number, bank_name, bank_recipient):
         """Makes a call to POST /api/1/beneficiaries.
@@ -73,12 +73,12 @@ class Client(BaseClient):
         :type bank_recipient: str
         """
         req = {
-            'account_type': account_type,
-            'bank_account_number': bank_account_number,
-            'bank_name': bank_name,
-            'bank_recipient': bank_recipient,
+            "account_type": account_type,
+            "bank_account_number": bank_account_number,
+            "bank_name": bank_name,
+            "bank_recipient": bank_recipient,
         }
-        return self.do('POST', '/api/1/beneficiaries', req=req, auth=True)
+        return self.do("POST", "/api/1/beneficiaries", req=req, auth=True)
 
     def create_funding_address(self, asset, account_id=None, name=None):
         """Makes a call to POST /api/1/funding_address.
@@ -97,11 +97,11 @@ class Client(BaseClient):
         :type name: str
         """
         req = {
-            'asset': asset,
-            'account_id': account_id,
-            'name': name,
+            "asset": asset,
+            "account_id": account_id,
+            "name": name,
         }
-        return self.do('POST', '/api/1/funding_address', req=req, auth=True)
+        return self.do("POST", "/api/1/funding_address", req=req, auth=True)
 
     def create_withdrawal(self, amount, type, beneficiary_id=None, external_id=None, fast=None, reference=None):
         """Makes a call to POST /api/1/withdrawals.
@@ -132,14 +132,14 @@ class Client(BaseClient):
         :type reference: str
         """
         req = {
-            'amount': amount,
-            'type': type,
-            'beneficiary_id': beneficiary_id,
-            'external_id': external_id,
-            'fast': fast,
-            'reference': reference,
+            "amount": amount,
+            "type": type,
+            "beneficiary_id": beneficiary_id,
+            "external_id": external_id,
+            "fast": fast,
+            "reference": reference,
         }
-        return self.do('POST', '/api/1/withdrawals', req=req, auth=True)
+        return self.do("POST", "/api/1/withdrawals", req=req, auth=True)
 
     def delete_beneficiary(self, id):
         """Makes a call to DELETE /api/1/beneficiaries/{id}.
@@ -152,9 +152,9 @@ class Client(BaseClient):
         :type id: int
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('DELETE', '/api/1/beneficiaries/{id}', req=req, auth=True)
+        return self.do("DELETE", "/api/1/beneficiaries/{id}", req=req, auth=True)
 
     def get_balances(self, assets=None, account_id=None):
         """Makes a call to GET /api/1/balance.
@@ -173,19 +173,19 @@ class Client(BaseClient):
         :type account_id: str
         """
         req = {
-            'assets': assets,
+            "assets": assets,
         }
-        response = self.do('GET', '/api/1/balance', req=req, auth=True)
-        
+        response = self.do("GET", "/api/1/balance", req=req, auth=True)
+
         # If account_id is specified, filter to return only that account
         if account_id is not None:
-            if 'balance' in response:
-                for account in response['balance']:
-                    if str(account.get('account_id')) == str(account_id):
+            if "balance" in response:
+                for account in response["balance"]:
+                    if str(account.get("account_id")) == str(account_id):
                         return account
             # If account_id not found, return None
             return None
-        
+
         # Return full response if no account_id specified (backward compatibility)
         return response
 
@@ -209,11 +209,11 @@ class Client(BaseClient):
         :type since: int
         """
         req = {
-            'duration': duration,
-            'pair': pair,
-            'since': since,
+            "duration": duration,
+            "pair": pair,
+            "since": since,
         }
-        return self.do('GET', '/api/exchange/1/candles', req=req, auth=True)
+        return self.do("GET", "/api/exchange/1/candles", req=req, auth=True)
 
     def get_fee_info(self, pair):
         """Makes a call to GET /api/1/fee_info.
@@ -226,9 +226,9 @@ class Client(BaseClient):
         :type pair: str
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/1/fee_info', req=req, auth=True)
+        return self.do("GET", "/api/1/fee_info", req=req, auth=True)
 
     def get_funding_address(self, asset, address=None):
         """Makes a call to GET /api/1/funding_address.
@@ -247,10 +247,10 @@ class Client(BaseClient):
         :type address: str
         """
         req = {
-            'asset': asset,
-            'address': address,
+            "asset": asset,
+            "address": address,
         }
-        return self.do('GET', '/api/1/funding_address', req=req, auth=True)
+        return self.do("GET", "/api/1/funding_address", req=req, auth=True)
 
     def get_move(self, client_move_id=None, id=None):
         """Makes a call to GET /api/exchange/1/move.
@@ -269,10 +269,10 @@ class Client(BaseClient):
         :type id: str
         """
         req = {
-            'client_move_id': client_move_id,
-            'id': id,
+            "client_move_id": client_move_id,
+            "id": id,
         }
-        return self.do('GET', '/api/exchange/1/move', req=req, auth=True)
+        return self.do("GET", "/api/exchange/1/move", req=req, auth=True)
 
     def get_order(self, id):
         """Makes a call to GET /api/1/orders/{id}.
@@ -285,9 +285,9 @@ class Client(BaseClient):
         :type id: str
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('GET', '/api/1/orders/{id}', req=req, auth=True)
+        return self.do("GET", "/api/1/orders/{id}", req=req, auth=True)
 
     def get_order_book(self, pair):
         """Makes a call to GET /api/1/orderbook_top.
@@ -302,9 +302,9 @@ class Client(BaseClient):
         :type pair: str
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/1/orderbook_top', req=req, auth=False)
+        return self.do("GET", "/api/1/orderbook_top", req=req, auth=False)
 
     def get_order_book_full(self, pair):
         """Makes a call to GET /api/1/orderbook.
@@ -323,9 +323,9 @@ class Client(BaseClient):
         :type pair: str
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/1/orderbook', req=req, auth=False)
+        return self.do("GET", "/api/1/orderbook", req=req, auth=False)
 
     def get_order_v2(self, id):
         """Makes a call to GET /api/exchange/2/orders/{id}.
@@ -338,9 +338,9 @@ class Client(BaseClient):
         :type id: str
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('GET', '/api/exchange/2/orders/{id}', req=req, auth=True)
+        return self.do("GET", "/api/exchange/2/orders/{id}", req=req, auth=True)
 
     def get_order_v3(self, client_order_id=None, id=None):
         """Makes a call to GET /api/exchange/3/order.
@@ -355,10 +355,10 @@ class Client(BaseClient):
         :type id: str
         """
         req = {
-            'client_order_id': client_order_id,
-            'id': id,
+            "client_order_id": client_order_id,
+            "id": id,
         }
-        return self.do('GET', '/api/exchange/3/order', req=req, auth=True)
+        return self.do("GET", "/api/exchange/3/order", req=req, auth=True)
 
     def get_ticker(self, pair):
         """Makes a call to GET /api/1/ticker.
@@ -371,9 +371,9 @@ class Client(BaseClient):
         :type pair: str
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/1/ticker', req=req, auth=False)
+        return self.do("GET", "/api/1/ticker", req=req, auth=False)
 
     def get_tickers(self, pair=None):
         """Makes a call to GET /api/1/tickers.
@@ -388,9 +388,9 @@ class Client(BaseClient):
         :type pair: list
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/1/tickers', req=req, auth=False)
+        return self.do("GET", "/api/1/tickers", req=req, auth=False)
 
     def get_withdrawal(self, id):
         """Makes a call to GET /api/1/withdrawals/{id}.
@@ -403,9 +403,9 @@ class Client(BaseClient):
         :type id: int
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('GET', '/api/1/withdrawals/{id}', req=req, auth=True)
+        return self.do("GET", "/api/1/withdrawals/{id}", req=req, auth=True)
 
     def list_beneficiaries(self, bank_recipient=None):
         """Makes a call to GET /api/1/beneficiaries.
@@ -417,9 +417,9 @@ class Client(BaseClient):
         :param bank_recipient:         :type bank_recipient: str
         """
         req = {
-            'bank_recipient': bank_recipient,
+            "bank_recipient": bank_recipient,
         }
-        return self.do('GET', '/api/1/beneficiaries', req=req, auth=True)
+        return self.do("GET", "/api/1/beneficiaries", req=req, auth=True)
 
     def list_moves(self, before=None, limit=None):
         """Makes a call to GET /api/exchange/1/move/list_moves.
@@ -435,10 +435,10 @@ class Client(BaseClient):
         :type limit: int
         """
         req = {
-            'before': before,
-            'limit': limit,
+            "before": before,
+            "limit": limit,
         }
-        return self.do('GET', '/api/exchange/1/move/list_moves', req=req, auth=True)
+        return self.do("GET", "/api/exchange/1/move/list_moves", req=req, auth=True)
 
     def list_orders(self, created_before=None, limit=None, pair=None, state=None):
         """Makes a call to GET /api/1/listorders.
@@ -459,12 +459,12 @@ class Client(BaseClient):
         :type state: str
         """
         req = {
-            'created_before': created_before,
-            'limit': limit,
-            'pair': pair,
-            'state': state,
+            "created_before": created_before,
+            "limit": limit,
+            "pair": pair,
+            "state": state,
         }
-        return self.do('GET', '/api/1/listorders', req=req, auth=True)
+        return self.do("GET", "/api/1/listorders", req=req, auth=True)
 
     def list_orders_v2(self, closed=None, created_before=None, limit=None, pair=None):
         """Makes a call to GET /api/exchange/2/listorders.
@@ -487,12 +487,12 @@ class Client(BaseClient):
         :type pair: str
         """
         req = {
-            'closed': closed,
-            'created_before': created_before,
-            'limit': limit,
-            'pair': pair,
+            "closed": closed,
+            "created_before": created_before,
+            "limit": limit,
+            "pair": pair,
         }
-        return self.do('GET', '/api/exchange/2/listorders', req=req, auth=True)
+        return self.do("GET", "/api/exchange/2/listorders", req=req, auth=True)
 
     def list_pending_transactions(self, id):
         """Makes a call to GET /api/1/accounts/{id}/pending.
@@ -507,9 +507,9 @@ class Client(BaseClient):
         :type id: int
         """
         req = {
-            'id': id,
+            "id": id,
         }
-        return self.do('GET', '/api/1/accounts/{id}/pending', req=req, auth=True)
+        return self.do("GET", "/api/1/accounts/{id}/pending", req=req, auth=True)
 
     def list_trades(self, pair, since=None):
         """Makes a call to GET /api/1/trades.
@@ -529,10 +529,10 @@ class Client(BaseClient):
         :type since: int
         """
         req = {
-            'pair': pair,
-            'since': since,
+            "pair": pair,
+            "since": since,
         }
-        return self.do('GET', '/api/1/trades', req=req, auth=False)
+        return self.do("GET", "/api/1/trades", req=req, auth=False)
 
     def list_transactions(self, id, max_row, min_row):
         """Makes a call to GET /api/1/accounts/{id}/transactions.
@@ -558,11 +558,11 @@ class Client(BaseClient):
         :type min_row: int
         """
         req = {
-            'id': id,
-            'max_row': max_row,
-            'min_row': min_row,
+            "id": id,
+            "max_row": max_row,
+            "min_row": min_row,
         }
-        return self.do('GET', '/api/1/accounts/{id}/transactions', req=req, auth=True)
+        return self.do("GET", "/api/1/accounts/{id}/transactions", req=req, auth=True)
 
     def list_transfers(self, account_id, before=None, limit=None):
         """Makes a call to GET /api/exchange/1/transfers.
@@ -591,13 +591,22 @@ class Client(BaseClient):
         :type limit: int
         """
         req = {
-            'account_id': account_id,
-            'before': before,
-            'limit': limit,
+            "account_id": account_id,
+            "before": before,
+            "limit": limit,
         }
-        return self.do('GET', '/api/exchange/1/transfers', req=req, auth=True)
+        return self.do("GET", "/api/exchange/1/transfers", req=req, auth=True)
 
-    def list_user_trades(self, pair, after_seq=None, before=None, before_seq=None, limit=None, since=None, sort_desc=None):
+    def list_user_trades(
+        self,
+        pair,
+        after_seq=None,
+        before=None,
+        before_seq=None,
+        limit=None,
+        since=None,
+        sort_desc=None,
+    ):
         """Makes a call to GET /api/1/listtrades.
 
         Returns a list of the recent Trades for a given currency pair for this user, sorted by oldest first.
@@ -631,15 +640,15 @@ class Client(BaseClient):
         :type sort_desc: bool
         """
         req = {
-            'pair': pair,
-            'after_seq': after_seq,
-            'before': before,
-            'before_seq': before_seq,
-            'limit': limit,
-            'since': since,
-            'sort_desc': sort_desc,
+            "pair": pair,
+            "after_seq": after_seq,
+            "before": before,
+            "before_seq": before_seq,
+            "limit": limit,
+            "since": since,
+            "sort_desc": sort_desc,
         }
-        return self.do('GET', '/api/1/listtrades', req=req, auth=True)
+        return self.do("GET", "/api/1/listtrades", req=req, auth=True)
 
     def list_withdrawals(self, before_id=None, limit=None):
         """Makes a call to GET /api/1/withdrawals.
@@ -655,10 +664,10 @@ class Client(BaseClient):
         :type limit: int
         """
         req = {
-            'before_id': before_id,
-            'limit': limit,
+            "before_id": before_id,
+            "limit": limit,
         }
-        return self.do('GET', '/api/1/withdrawals', req=req, auth=True)
+        return self.do("GET", "/api/1/withdrawals", req=req, auth=True)
 
     def markets(self, pair=None):
         """Makes a call to GET /api/exchange/1/markets.
@@ -670,9 +679,9 @@ class Client(BaseClient):
         :type pair: list
         """
         req = {
-            'pair': pair,
+            "pair": pair,
         }
-        return self.do('GET', '/api/exchange/1/markets', req=req, auth=False)
+        return self.do("GET", "/api/exchange/1/markets", req=req, auth=False)
 
     def move(self, amount, credit_account_id, debit_account_id, client_move_id=None):
         """Makes a call to POST /api/exchange/1/move.
@@ -699,14 +708,29 @@ class Client(BaseClient):
         :type client_move_id: str
         """
         req = {
-            'amount': amount,
-            'credit_account_id': credit_account_id,
-            'debit_account_id': debit_account_id,
-            'client_move_id': client_move_id,
+            "amount": amount,
+            "credit_account_id": credit_account_id,
+            "debit_account_id": debit_account_id,
+            "client_move_id": client_move_id,
         }
-        return self.do('POST', '/api/exchange/1/move', req=req, auth=True)
+        return self.do("POST", "/api/exchange/1/move", req=req, auth=True)
 
-    def post_limit_order(self, pair, price, type, volume, base_account_id=None, client_order_id=None, counter_account_id=None, post_only=None, stop_direction=None, stop_price=None, time_in_force=None, timestamp=None, ttl=None):
+    def post_limit_order(
+        self,
+        pair,
+        price,
+        type,
+        volume,
+        base_account_id=None,
+        client_order_id=None,
+        counter_account_id=None,
+        post_only=None,
+        stop_direction=None,
+        stop_price=None,
+        time_in_force=None,
+        timestamp=None,
+        ttl=None,
+    ):
         """Makes a call to POST /api/1/postorder.
 
         <b>Warning!</b> Orders cannot be reversed once they have executed.
@@ -766,23 +790,34 @@ class Client(BaseClient):
         :type ttl: int
         """
         req = {
-            'pair': pair,
-            'price': price,
-            'type': type,
-            'volume': volume,
-            'base_account_id': base_account_id,
-            'client_order_id': client_order_id,
-            'counter_account_id': counter_account_id,
-            'post_only': post_only,
-            'stop_direction': stop_direction,
-            'stop_price': stop_price,
-            'time_in_force': time_in_force,
-            'timestamp': timestamp,
-            'ttl': ttl,
+            "pair": pair,
+            "price": price,
+            "type": type,
+            "volume": volume,
+            "base_account_id": base_account_id,
+            "client_order_id": client_order_id,
+            "counter_account_id": counter_account_id,
+            "post_only": post_only,
+            "stop_direction": stop_direction,
+            "stop_price": stop_price,
+            "time_in_force": time_in_force,
+            "timestamp": timestamp,
+            "ttl": ttl,
         }
-        return self.do('POST', '/api/1/postorder', req=req, auth=True)
+        return self.do("POST", "/api/1/postorder", req=req, auth=True)
 
-    def post_market_order(self, pair, type, base_account_id=None, base_volume=None, client_order_id=None, counter_account_id=None, counter_volume=None, timestamp=None, ttl=None):
+    def post_market_order(
+        self,
+        pair,
+        type,
+        base_account_id=None,
+        base_volume=None,
+        client_order_id=None,
+        counter_account_id=None,
+        counter_volume=None,
+        timestamp=None,
+        ttl=None,
+    ):
         """Makes a call to POST /api/1/marketorder.
 
         A Market Order executes immediately, and either buys as much of the asset that can be bought for a set amount of fiat currency, or sells a set amount of the asset for as much as possible.
@@ -821,19 +856,34 @@ class Client(BaseClient):
         :type ttl: int
         """
         req = {
-            'pair': pair,
-            'type': type,
-            'base_account_id': base_account_id,
-            'base_volume': base_volume,
-            'client_order_id': client_order_id,
-            'counter_account_id': counter_account_id,
-            'counter_volume': counter_volume,
-            'timestamp': timestamp,
-            'ttl': ttl,
+            "pair": pair,
+            "type": type,
+            "base_account_id": base_account_id,
+            "base_volume": base_volume,
+            "client_order_id": client_order_id,
+            "counter_account_id": counter_account_id,
+            "counter_volume": counter_volume,
+            "timestamp": timestamp,
+            "ttl": ttl,
         }
-        return self.do('POST', '/api/1/marketorder', req=req, auth=True)
+        return self.do("POST", "/api/1/marketorder", req=req, auth=True)
 
-    def send(self, address, amount, currency, account_id=None, description=None, destination_tag=None, external_id=None, forex_notice_self_declaration=None, has_destination_tag=None, is_drb=None, is_forex_send=None, memo=None, message=None):
+    def send(
+        self,
+        address,
+        amount,
+        currency,
+        account_id=None,
+        description=None,
+        destination_tag=None,
+        external_id=None,
+        forex_notice_self_declaration=None,
+        has_destination_tag=None,
+        is_drb=None,
+        is_forex_send=None,
+        memo=None,
+        message=None,
+    ):
         """Makes a call to POST /api/1/send.
 
         Send assets from an Account. Please note that the asset type sent must match the receive address of the same cryptocurrency of the same type - Bitcoin to Bitcoin, Ethereum to Ethereum, etc.
@@ -883,21 +933,21 @@ class Client(BaseClient):
         :type message: str
         """
         req = {
-            'address': address,
-            'amount': amount,
-            'currency': currency,
-            'account_id': account_id,
-            'description': description,
-            'destination_tag': destination_tag,
-            'external_id': external_id,
-            'forex_notice_self_declaration': forex_notice_self_declaration,
-            'has_destination_tag': has_destination_tag,
-            'is_drb': is_drb,
-            'is_forex_send': is_forex_send,
-            'memo': memo,
-            'message': message,
+            "address": address,
+            "amount": amount,
+            "currency": currency,
+            "account_id": account_id,
+            "description": description,
+            "destination_tag": destination_tag,
+            "external_id": external_id,
+            "forex_notice_self_declaration": forex_notice_self_declaration,
+            "has_destination_tag": has_destination_tag,
+            "is_drb": is_drb,
+            "is_forex_send": is_forex_send,
+            "memo": memo,
+            "message": message,
         }
-        return self.do('POST', '/api/1/send', req=req, auth=True)
+        return self.do("POST", "/api/1/send", req=req, auth=True)
 
     def send_fee(self, address, amount, currency):
         """Makes a call to GET /api/1/send_fee.
@@ -923,11 +973,11 @@ class Client(BaseClient):
         :type currency: str
         """
         req = {
-            'address': address,
-            'amount': amount,
-            'currency': currency,
+            "address": address,
+            "amount": amount,
+            "currency": currency,
         }
-        return self.do('GET', '/api/1/send_fee', req=req, auth=True)
+        return self.do("GET", "/api/1/send_fee", req=req, auth=True)
 
     def stop_order(self, order_id):
         """Makes a call to POST /api/1/stoporder.
@@ -943,9 +993,9 @@ class Client(BaseClient):
         :type order_id: str
         """
         req = {
-            'order_id': order_id,
+            "order_id": order_id,
         }
-        return self.do('POST', '/api/1/stoporder', req=req, auth=True)
+        return self.do("POST", "/api/1/stoporder", req=req, auth=True)
 
     def update_account_name(self, id, name):
         """Makes a call to PUT /api/1/accounts/{id}/name.
@@ -960,12 +1010,30 @@ class Client(BaseClient):
         :type name: str
         """
         req = {
-            'id': id,
-            'name': name,
+            "id": id,
+            "name": name,
         }
-        return self.do('PUT', '/api/1/accounts/{id}/name', req=req, auth=True)
+        return self.do("PUT", "/api/1/accounts/{id}/name", req=req, auth=True)
 
-    def validate(self, address, currency, address_name=None, beneficiary_name=None, country=None, date_of_birth=None, destination_tag=None, has_destination_tag=None, institution_name=None, is_legal_entity=None, is_private_wallet=None, is_self_send=None, memo=None, nationality=None, physical_address=None, wallet_name=None):
+    def validate(
+        self,
+        address,
+        currency,
+        address_name=None,
+        beneficiary_name=None,
+        country=None,
+        date_of_birth=None,
+        destination_tag=None,
+        has_destination_tag=None,
+        institution_name=None,
+        is_legal_entity=None,
+        is_private_wallet=None,
+        is_self_send=None,
+        memo=None,
+        nationality=None,
+        physical_address=None,
+        wallet_name=None,
+    ):
         """Makes a call to POST /api/1/address/validate.
 
         Validate receive addresses, to which a customer wishes to make cryptocurrency sends, are verified under covering
@@ -1021,24 +1089,24 @@ class Client(BaseClient):
         :type wallet_name: str
         """
         req = {
-            'address': address,
-            'currency': currency,
-            'address_name': address_name,
-            'beneficiary_name': beneficiary_name,
-            'country': country,
-            'date_of_birth': date_of_birth,
-            'destination_tag': destination_tag,
-            'has_destination_tag': has_destination_tag,
-            'institution_name': institution_name,
-            'is_legal_entity': is_legal_entity,
-            'is_private_wallet': is_private_wallet,
-            'is_self_send': is_self_send,
-            'memo': memo,
-            'nationality': nationality,
-            'physical_address': physical_address,
-            'wallet_name': wallet_name,
+            "address": address,
+            "currency": currency,
+            "address_name": address_name,
+            "beneficiary_name": beneficiary_name,
+            "country": country,
+            "date_of_birth": date_of_birth,
+            "destination_tag": destination_tag,
+            "has_destination_tag": has_destination_tag,
+            "institution_name": institution_name,
+            "is_legal_entity": is_legal_entity,
+            "is_private_wallet": is_private_wallet,
+            "is_self_send": is_self_send,
+            "memo": memo,
+            "nationality": nationality,
+            "physical_address": physical_address,
+            "wallet_name": wallet_name,
         }
-        return self.do('POST', '/api/1/address/validate', req=req, auth=True)
+        return self.do("POST", "/api/1/address/validate", req=req, auth=True)
 
 
 # vi: ft=python

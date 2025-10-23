@@ -31,4 +31,3 @@ except Exception as e:
 ### License
 
 [MIT](https://github.com/luno/luno-python/blob/master/LICENSE.txt)
-
