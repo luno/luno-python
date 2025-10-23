@@ -1,5 +1,6 @@
 import json
 import platform
+
 import requests
 import six
 
@@ -11,7 +12,7 @@ except ImportError:
 from . import VERSION
 from .error import APIError
 
-DEFAULT_BASE_URL = 'https://api.luno.com'
+DEFAULT_BASE_URL = "https://api.luno.com"
 DEFAULT_TIMEOUT = 10
 PYTHON_VERSION = platform.python_version()
 SYSTEM = platform.system()
@@ -19,8 +20,7 @@ ARCH = platform.machine()
 
 
 class BaseClient:
-    def __init__(self, base_url='', timeout=0,
-                 api_key_id='', api_key_secret=''):
+    def __init__(self, base_url="", timeout=0, api_key_id="", api_key_secret=""):
         """
         :type base_url: str
         :type timeout: float
@@ -47,9 +47,9 @@ class BaseClient:
 
         :type base_url: str
         """
-        if base_url == '':
+        if base_url == "":
             base_url = DEFAULT_BASE_URL
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
 
     def set_timeout(self, timeout):
         """Sets the timeout, in seconds, for requests made by the client.
@@ -74,19 +74,19 @@ class BaseClient:
             params = json.loads(json.dumps(req))
         except Exception:
             params = None
-        headers = {'User-Agent': self.make_user_agent()}
+        headers = {"User-Agent": self.make_user_agent()}
         args = dict(timeout=self.timeout, params=params, headers=headers)
         if auth:
-            args['auth'] = (self.api_key_id, self.api_key_secret)
+            args["auth"] = (self.api_key_id, self.api_key_secret)
         url = self.make_url(path, params)
         res = self.session.request(method, url, **args)
         try:
             e = res.json()
-            if 'error' in e and 'error_code' in e:
-                raise APIError(e['error_code'], e['error'])
+            if "error" in e and "error_code" in e:
+                raise APIError(e["error_code"], e["error"])
             return e
         except JSONDecodeError:
-            raise Exception('luno: unknown API error (%s)' % res.status_code)
+            raise Exception("luno: unknown API error (%s)" % res.status_code)
 
     def make_url(self, path, params):
         """
@@ -94,13 +94,12 @@ class BaseClient:
         :rtype: str
         """
         if params:
-            for k, v in six.iteritems(params):
-                path = path.replace('{' + k + '}', str(v))
-        return self.base_url + '/' + path.lstrip('/')
+            for k, v in params.items():
+                path = path.replace("{" + k + "}", str(v))
+        return self.base_url + "/" + path.lstrip("/")
 
     def make_user_agent(self):
         """
         :rtype: str
         """
-        return "LunoPythonSDK/%s python/%s %s %s" % \
-            (VERSION, PYTHON_VERSION, SYSTEM, ARCH)
+        return f"LunoPythonSDK/{VERSION} python/{PYTHON_VERSION} {SYSTEM} {ARCH}"
