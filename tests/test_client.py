@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 import requests
 import requests_mock
@@ -262,3 +264,29 @@ def test_get_balances_with_malformed_response():
     # Test without account_id on malformed response
     result = c.get_balances()
     assert result == MOCK_MALFORMED_RESPONSE
+
+
+def test_client_do_with_non_serializable_params():
+    """Test that non-JSON-serializable parameters raise a clear error."""
+    c = Client()
+    c.set_base_url("mock://test/")
+
+    # Test with Decimal (not JSON-serializable)
+    with pytest.raises(TypeError) as exc_info:
+        c.do("GET", "/", req={"amount": Decimal("10.5")})
+    assert "JSON-serializable" in str(exc_info.value)
+
+    # Test with custom object (not JSON-serializable)
+    class CustomObject:
+        pass
+
+    with pytest.raises(TypeError) as exc_info:
+        c.do("GET", "/", req={"obj": CustomObject()})
+    assert "JSON-serializable" in str(exc_info.value)
+
+    # Test with None request (should not raise)
+    adapter = requests_mock.Adapter()
+    c.session.mount("mock", adapter)
+    adapter.register_uri("GET", "mock://test/", json={"result": "ok"})
+    result = c.do("GET", "/", req=None)
+    assert result["result"] == "ok"

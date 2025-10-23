@@ -70,10 +70,13 @@ class BaseClient:
         :type req: object
         :type auth: bool
         """
-        try:
-            params = json.loads(json.dumps(req))
-        except Exception:
+        if req is None:
             params = None
+        else:
+            try:
+                params = json.loads(json.dumps(req))
+            except TypeError as e:
+                raise TypeError("luno: request parameters must be JSON-serializable: %s" % str(e)) from e
         headers = {"User-Agent": self.make_user_agent()}
         args = dict(timeout=self.timeout, params=params, headers=headers)
         if auth:
