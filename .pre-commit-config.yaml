@@ -69,7 +69,8 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest
+        entry: env/bin/pytest
+        args: ['-v', '--override-ini=addopts=']
         language: system
         pass_filenames: false
         always_run: true

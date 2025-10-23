@@ -10,6 +10,75 @@ except ImportError:
 from luno_python.client import Client
 from luno_python.error import APIError
 
+# Mock response fixtures
+MOCK_BALANCES_RESPONSE = {
+    "balance": [
+        {
+            "account_id": "12345678910",
+            "asset": "XBT",
+            "balance": "0.00",
+            "reserved": "0.00",
+            "unconfirmed": "0.00",
+        },
+        {
+            "account_id": "98765432100",
+            "asset": "ETH",
+            "balance": "1.50",
+            "reserved": "0.10",
+            "unconfirmed": "0.05",
+        },
+        {
+            "account_id": "55555555555",
+            "asset": "ZAR",
+            "balance": "1000.00",
+            "reserved": "0.00",
+            "unconfirmed": "0.00",
+        },
+    ]
+}
+
+MOCK_BALANCES_RESPONSE_TWO_ACCOUNTS = {
+    "balance": [
+        {
+            "account_id": "12345678910",
+            "asset": "XBT",
+            "balance": "0.00",
+            "reserved": "0.00",
+            "unconfirmed": "0.00",
+        },
+        {
+            "account_id": "98765432100",
+            "asset": "ETH",
+            "balance": "1.50",
+            "reserved": "0.10",
+            "unconfirmed": "0.05",
+        },
+    ]
+}
+
+MOCK_BALANCES_RESPONSE_INTEGER_IDS = {
+    "balance": [
+        {
+            "account_id": 12345678910,
+            "asset": "XBT",
+            "balance": "0.00",
+            "reserved": "0.00",
+            "unconfirmed": "0.00",
+        },
+        {
+            "account_id": 98765432100,
+            "asset": "ETH",
+            "balance": "1.50",
+            "reserved": "0.10",
+            "unconfirmed": "0.05",
+        },
+    ]
+}
+
+MOCK_EMPTY_BALANCE_RESPONSE = {"balance": []}
+
+MOCK_MALFORMED_RESPONSE = {"some_other_key": "value"}
+
 
 def test_client():
     c = Client()
@@ -56,38 +125,11 @@ def test_get_balances_without_account_id():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock the API response
-    mock_response = {
-        "balance": [
-            {
-                "account_id": "12345678910",
-                "asset": "XBT",
-                "balance": "0.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-            {
-                "account_id": "98765432100",
-                "asset": "ETH",
-                "balance": "1.50",
-                "reserved": "0.10",
-                "unconfirmed": "0.05",
-            },
-            {
-                "account_id": "55555555555",
-                "asset": "ZAR",
-                "balance": "1000.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-        ]
-    }
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_BALANCES_RESPONSE)
 
     # Test without account_id - should return full response
     result = c.get_balances()
-    assert result == mock_response
+    assert result == MOCK_BALANCES_RESPONSE
     assert "balance" in result
     assert len(result["balance"]) == 3
 
@@ -100,34 +142,7 @@ def test_get_balances_with_valid_account_id():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock the API response
-    mock_response = {
-        "balance": [
-            {
-                "account_id": "12345678910",
-                "asset": "XBT",
-                "balance": "0.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-            {
-                "account_id": "98765432100",
-                "asset": "ETH",
-                "balance": "1.50",
-                "reserved": "0.10",
-                "unconfirmed": "0.05",
-            },
-            {
-                "account_id": "55555555555",
-                "asset": "ZAR",
-                "balance": "1000.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-        ]
-    }
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_BALANCES_RESPONSE)
 
     # Test with valid account_id - should return single account
     result = c.get_balances(account_id="12345678910")
@@ -160,27 +175,7 @@ def test_get_balances_with_invalid_account_id():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock the API response
-    mock_response = {
-        "balance": [
-            {
-                "account_id": "12345678910",
-                "asset": "XBT",
-                "balance": "0.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-            {
-                "account_id": "98765432100",
-                "asset": "ETH",
-                "balance": "1.50",
-                "reserved": "0.10",
-                "unconfirmed": "0.05",
-            },
-        ]
-    }
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_BALANCES_RESPONSE_TWO_ACCOUNTS)
 
     # Test with invalid account_id - should return None
     result = c.get_balances(account_id="99999999999")
@@ -195,27 +190,7 @@ def test_get_balances_with_account_id_and_assets():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock the API response
-    mock_response = {
-        "balance": [
-            {
-                "account_id": "12345678910",
-                "asset": "XBT",
-                "balance": "0.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-            {
-                "account_id": "98765432100",
-                "asset": "ETH",
-                "balance": "1.50",
-                "reserved": "0.10",
-                "unconfirmed": "0.05",
-            },
-        ]
-    }
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_BALANCES_RESPONSE_TWO_ACCOUNTS)
 
     # Test with both parameters
     result = c.get_balances(assets=["XBT"], account_id="12345678910")
@@ -237,27 +212,7 @@ def test_get_balances_with_account_id_type_conversion():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock the API response with integer account_id
-    mock_response = {
-        "balance": [
-            {
-                "account_id": 12345678910,
-                "asset": "XBT",
-                "balance": "0.00",
-                "reserved": "0.00",
-                "unconfirmed": "0.00",
-            },
-            {
-                "account_id": 98765432100,
-                "asset": "ETH",
-                "balance": "1.50",
-                "reserved": "0.10",
-                "unconfirmed": "0.05",
-            },
-        ]
-    }
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_BALANCES_RESPONSE_INTEGER_IDS)
 
     # Test with string account_id when API returns integer - should work due to type conversion
     result = c.get_balances(account_id="12345678910")
@@ -279,10 +234,7 @@ def test_get_balances_with_empty_balance_response():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock empty response
-    mock_response = {"balance": []}
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_EMPTY_BALANCE_RESPONSE)
 
     # Test with account_id on empty response
     result = c.get_balances(account_id="12345678910")
@@ -290,7 +242,7 @@ def test_get_balances_with_empty_balance_response():
 
     # Test without account_id on empty response
     result = c.get_balances()
-    assert result == mock_response
+    assert result == MOCK_EMPTY_BALANCE_RESPONSE
 
 
 def test_get_balances_with_malformed_response():
@@ -301,10 +253,7 @@ def test_get_balances_with_malformed_response():
     adapter = requests_mock.Adapter()
     c.session.mount("mock", adapter)
 
-    # Mock response without 'balance' key
-    mock_response = {"some_other_key": "value"}
-
-    adapter.register_uri("GET", "mock://test/api/1/balance", json=mock_response)
+    adapter.register_uri("GET", "mock://test/api/1/balance", json=MOCK_MALFORMED_RESPONSE)
 
     # Test with account_id on malformed response
     result = c.get_balances(account_id="12345678910")
@@ -312,4 +261,4 @@ def test_get_balances_with_malformed_response():
 
     # Test without account_id on malformed response
     result = c.get_balances()
-    assert result == mock_response
+    assert result == MOCK_MALFORMED_RESPONSE
