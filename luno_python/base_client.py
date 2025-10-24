@@ -1,8 +1,9 @@
+"""Base HTTP client for Luno API."""
+
 import json
 import platform
 
 import requests
-import six
 
 try:
     from json.decoder import JSONDecodeError
@@ -20,8 +21,11 @@ ARCH = platform.machine()
 
 
 class BaseClient:
+    """Base HTTP client for making authenticated requests to the Luno API."""
+
     def __init__(self, base_url="", timeout=0, api_key_id="", api_key_secret=""):
-        """
+        """Initialise the base client.
+
         :type base_url: str
         :type timeout: float
         :type api_key_id: str
@@ -34,7 +38,7 @@ class BaseClient:
         self.session = requests.Session()
 
     def set_auth(self, api_key_id, api_key_secret):
-        """Provides the client with an API key and secret.
+        """Set the API key and secret for authentication.
 
         :type api_key_id: str
         :type api_key_secret: str
@@ -43,7 +47,7 @@ class BaseClient:
         self.api_key_secret = api_key_secret
 
     def set_base_url(self, base_url):
-        """Overrides the default base URL. For internal use.
+        """Set the base URL for API requests.
 
         :type base_url: str
         """
@@ -52,7 +56,7 @@ class BaseClient:
         self.base_url = base_url.rstrip("/")
 
     def set_timeout(self, timeout):
-        """Sets the timeout, in seconds, for requests made by the client.
+        """Set the timeout in seconds for API requests.
 
         :type timeout: float
         """
@@ -61,9 +65,9 @@ class BaseClient:
         self.timeout = timeout
 
     def do(self, method, path, req=None, auth=False):
-        """Performs an API request and returns the response.
+        """Perform an API request and return the response.
 
-        TODO: Handle 429s
+        TODO: Handle 429s.
 
         :type method: str
         :type path: str
@@ -76,7 +80,8 @@ class BaseClient:
             try:
                 params = json.loads(json.dumps(req))
             except TypeError as e:
-                raise TypeError("luno: request parameters must be JSON-serializable: %s" % str(e)) from e
+                msg = "luno: request parameters must be JSON-serializable: %s"
+                raise TypeError(msg % str(e)) from e
         headers = {"User-Agent": self.make_user_agent()}
         args = dict(timeout=self.timeout, params=params, headers=headers)
         if auth:
@@ -92,7 +97,8 @@ class BaseClient:
             raise Exception("luno: unknown API error (%s)" % res.status_code)
 
     def make_url(self, path, params):
-        """
+        """Construct the full URL for an API request.
+
         :type path: str
         :rtype: str
         """
@@ -102,7 +108,8 @@ class BaseClient:
         return self.base_url + "/" + path.lstrip("/")
 
     def make_user_agent(self):
-        """
+        """Generate the User-Agent string for API requests.
+
         :rtype: str
         """
         return f"LunoPythonSDK/{VERSION} python/{PYTHON_VERSION} {SYSTEM} {ARCH}"

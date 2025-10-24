@@ -1,3 +1,5 @@
+"""Setup script for luno-python package."""
+
 from setuptools import find_packages, setup
 
 from luno_python import VERSION

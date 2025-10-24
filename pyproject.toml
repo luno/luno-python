@@ -20,7 +20,10 @@ skip_gitignore = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "env", "build"]
-skips = ["B101"]  # Skip assert_used check (common in tests)
+skips = [
+    "B101",  # Skip assert_used check (common in tests)
+    "B107",  # Skip hardcoded_password_default (empty string defaults are acceptable for optional credentials)
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
