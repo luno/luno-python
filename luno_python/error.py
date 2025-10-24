@@ -8,7 +8,9 @@ class APIError(Exception):
         """Initialise APIError with code and message.
 
         :param code: Error code from the API
+        :type code: str
         :param message: Error message from the API
+        :type message: str
         """
         self.code = code
         self.message = message
