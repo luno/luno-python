@@ -20,6 +20,9 @@ StateUpdate = Callable[[Pair, MarketState, dict], None]
 class OutOfOrderMessageException(Exception):
     pass
 
+class MarketInitialisationException(Exception):
+    pass
+
 
 def _flatten_orders(orders, reverse):
     return sorted(orders.values(), key=lambda o: o.price, reverse=reverse)
@@ -38,7 +41,7 @@ def _decrement_trade(orders: Dict[str, Order], order_id: str, volume: Decimal):
 class _MarketStreamState:
     def __init__(self, first: dict):
         if first is None:
-            raise Exception("Unable to use empty message to initialise market state")
+            raise MarketInitialisationException("Unable to initialise market state from an empty message")
 
         def conv_message(msg):
             return Order(
@@ -136,8 +139,8 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
     async for message in ws:
         try:
             body = json.loads(message)
-        except ValueError:
-            raise Exception(message)
+        except ValueError as e:
+            raise ValueError(f"Invalid JSON received: {message}") from e
 
         if body == "": # Empty update, used as keepalive
             body = None
@@ -177,7 +180,7 @@ async def stream_market(
         :param update_callback: an StateUpdate function that will be called with new updates.
     """
     if len(pair) != 6:
-        raise Exception("Invalid pair")
+        raise ValueError(f"pair must be length 6, got '{pair}'")
 
     p = Pair(pair[:3].upper(), pair[3:].upper())
     url = '/'.join([base_url, 'api/1/stream', p.base + p.counter])
