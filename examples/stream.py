@@ -8,11 +8,14 @@ def handle_update(pair, state, update):
     if update is not None:
         print(update)
 
-asyncio.get_event_loop().run_until_complete(
-    stream_market(
+async def main():
+    await stream_market(
         pair="XBTZAR",
         api_key_id="", # API Key goes here
         api_key_secret="", # and API Secret goes here
         update_callback=handle_update,
     )
-)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
