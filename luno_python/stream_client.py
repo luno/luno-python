@@ -198,6 +198,6 @@ async def stream_market(
         })
         await websocket.send(auth)
 
-    async with asyncio.TaskGroup() as tg:
-        tg.create_task(_read_from_websocket(websocket, p, update_callback))
-        tg.create_task(_write_keep_alive(websocket))
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(_read_from_websocket(websocket, p, update_callback))
+            tg.create_task(_write_keep_alive(websocket))
