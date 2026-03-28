@@ -15,7 +15,6 @@ async def main():
         api_key_secret="", # and API Secret goes here
         update_callback=handle_update,
     )
-    print("Stream ended")
 
 
 if __name__ == "__main__":
