@@ -24,6 +24,23 @@ class MarketInitialisationException(Exception):
     pass
 
 
+_FOUR_CHAR_CURRENCIES = {"USDC", "USDT"}
+
+def _parse_pair(pair: str) -> 'Pair':
+    """Parse a pair string like "XBTZAR" or "USDCZAR" into a Pair(base, counter).
+
+    Uses known 4-character currency codes to disambiguate variable-length pairs.
+    """
+    pair = pair.upper()
+    if not pair.isalpha() or len(pair) < 6:
+        raise ValueError(f"Invalid pair: '{pair}'.")
+    if pair[:4] in _FOUR_CHAR_CURRENCIES and len(pair[4:]) >= 3:
+        return Pair(pair[:4], pair[4:])
+    if pair[-4:] in _FOUR_CHAR_CURRENCIES and len(pair[:-4]) >= 3:
+        return Pair(pair[:-4], pair[-4:])
+    return Pair(pair[:3], pair[3:])
+
+
 def _flatten_orders(orders, reverse):
     return sorted(orders.values(), key=lambda o: o.price, reverse=reverse)
 
@@ -145,7 +162,7 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
         if body == "": # Empty update, used as keepalive
             body = None
 
-        if body is None and is_first:
+        if body is None:
             continue
 
         if is_first:
@@ -182,10 +199,7 @@ async def stream_market(
         :param api_key_secret: str
         :param update_callback: an StateUpdate function that will be called with new updates.
     """
-    if len(pair) != 6:
-        raise ValueError(f"pair must be length 6, got '{pair}'")
-
-    p = Pair(pair[:3].upper(), pair[3:].upper())
+    p = _parse_pair(pair)
     url = '/'.join([base_url, 'api/1/stream', p.base + p.counter])
 
     async with websockets.connect(
@@ -201,6 +215,15 @@ async def stream_market(
         })
         await websocket.send(auth)
 
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(_read_from_websocket(websocket, p, update_callback))
-            tg.create_task(_write_keep_alive(websocket))
+        reader = asyncio.create_task(_read_from_websocket(websocket, p, update_callback))
+        keepalive = asyncio.create_task(_write_keep_alive(websocket))
+
+        done, pending = await asyncio.wait(
+            {reader, keepalive},
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+        for task in pending:
+            task.cancel()
+        await asyncio.gather(*pending, return_exceptions=True)
+        for task in done:
+            task.result()
