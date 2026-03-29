@@ -8,14 +8,14 @@ For example usage see examples/stream.py
 import asyncio
 from decimal import Decimal
 import json
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 import websockets
 
 from .api_types import DEC_0, Order, MarketState, Pair
 
 DEFAULT_URL = "wss://ws.luno.com"
 
-StateUpdate = Callable[[Pair, MarketState, dict], None]
+StateUpdate = Callable[[Pair, MarketState, Optional[dict]], None]
 
 class OutOfOrderMessageException(Exception):
     pass
@@ -145,6 +145,9 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
         if body == "": # Empty update, used as keepalive
             body = None
 
+        if body is None and is_first:
+            continue
+
         if is_first:
             is_first = False
             state = _MarketStreamState(body)
@@ -174,7 +177,7 @@ async def stream_market(
 
         Stream orderbook information and maintain an orderbook state.
 
-        :param pair: str Amount to buy or sell in the pair base currency.
+        :param pair: str Currency pair code (for example, "XBTZAR").
         :param api_key_id: str
         :param api_key_secret: str
         :param update_callback: an StateUpdate function that will be called with new updates.
