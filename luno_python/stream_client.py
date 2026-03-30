@@ -239,8 +239,10 @@ async def stream_market(
             for task in pending:
                 task.cancel()
             await asyncio.gather(*pending, return_exceptions=True)
-            for task in done:
-                task.result()
+            if reader in done:
+                reader.result()
+            if keepalive in done:
+                keepalive.result()
         finally:
             for task in tasks:
                 if not task.done():
