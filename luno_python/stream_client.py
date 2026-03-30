@@ -197,7 +197,7 @@ async def stream_market(
         :param pair: str Currency pair code (for example, "XBTZAR").
         :param api_key_id: str
         :param api_key_secret: str
-        :param update_callback: an StateUpdate function that will be called with new updates.
+        :param update_callback: a StateUpdate function that will be called with new updates.
     """
     p = _parse_pair(pair)
     url = '/'.join([base_url, 'api/1/stream', p.base + p.counter])
@@ -217,13 +217,20 @@ async def stream_market(
 
         reader = asyncio.create_task(_read_from_websocket(websocket, p, update_callback))
         keepalive = asyncio.create_task(_write_keep_alive(websocket))
+        tasks = (reader, keepalive)
 
-        done, pending = await asyncio.wait(
-            {reader, keepalive},
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-        for task in pending:
-            task.cancel()
-        await asyncio.gather(*pending, return_exceptions=True)
-        for task in done:
-            task.result()
+        try:
+            done, pending = await asyncio.wait(
+                set(tasks),
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in pending:
+                task.cancel()
+            await asyncio.gather(*pending, return_exceptions=True)
+            for task in done:
+                task.result()
+        finally:
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
