@@ -6,7 +6,7 @@ For example usage see examples/stream.py
 """
 
 import asyncio
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 from typing import Callable, Dict, List, Optional
 import websockets
@@ -34,11 +34,13 @@ def _parse_pair(pair: str) -> 'Pair':
     pair = pair.upper()
     if not pair.isalpha() or len(pair) < 6:
         raise ValueError(f"Invalid pair: '{pair}'.")
-    if pair[:4] in _FOUR_CHAR_CURRENCIES and len(pair[4:]) >= 3:
+    if pair[:4] in _FOUR_CHAR_CURRENCIES and len(pair[4:]) in (3, 4):
         return Pair(pair[:4], pair[4:])
-    if pair[-4:] in _FOUR_CHAR_CURRENCIES and len(pair[:-4]) >= 3:
+    if pair[-4:] in _FOUR_CHAR_CURRENCIES and len(pair[:-4]) in (3, 4):
         return Pair(pair[:-4], pair[-4:])
-    return Pair(pair[:3], pair[3:])
+    if len(pair) == 6:
+        return Pair(pair[:3], pair[3:])
+    raise ValueError(f"Invalid pair: '{pair}'.")
 
 
 def _flatten_orders(orders, reverse):
@@ -67,13 +69,18 @@ class _MarketStreamState:
                 Decimal(msg['volume']),
             )
 
-        bids = [conv_message(m) for m in first['bids']]
-        asks = [conv_message(m) for m in first['asks']]
-        self._bids = {b.order_id: b for b in bids}
-        self._asks = {a.order_id: a for a in asks}
-        self._sequence = first['sequence']
+        try:
+            bids = [conv_message(m) for m in first['bids']]
+            asks = [conv_message(m) for m in first['asks']]
+            self._bids = {b.order_id: b for b in bids}
+            self._asks = {a.order_id: a for a in asks}
+            self._sequence = first['sequence']
+            self._status = first['status']
+        except (KeyError, TypeError, InvalidOperation) as exc:
+            raise MarketInitialisationException(
+                "Unable to initialise market state from the initial snapshot"
+            ) from exc
         self._trades = []
-        self._status = first['status']
 
     def get_asks(self):
         return _flatten_orders(self._asks, False)
@@ -175,6 +182,11 @@ async def _read_from_websocket(ws, pair: Pair, update_f: StateUpdate):
         state.process_update(body)
 
         update_f(pair, state.get_snapshot(), body)
+
+    if is_first:
+        raise MarketInitialisationException(
+            "Stream closed before the initial snapshot was received"
+        )
 
 
 async def _write_keep_alive(ws):
