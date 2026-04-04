@@ -1,3 +1,3 @@
 """Luno Python SDK."""
 
-VERSION = "0.0.10"
+VERSION = "0.3.0"
