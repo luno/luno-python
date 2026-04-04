@@ -96,8 +96,8 @@ This project is published to [PyPI](https://pypi.org/project/luno-python/). Rele
    git checkout main && git pull origin main
    gh release create vx.y.z --title "vx.y.z" --generate-notes
    ```
-   This triggers the publish workflow which automatically builds and uploads the package to PyPI.
+   This triggers the publishing workflow, which automatically builds and uploads the package to PyPI.
 
 ### PyPI Trusted Publishing
 
-The publish workflow uses [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (OpenID Connect), which means no API tokens need to be stored as secrets. This must be configured once in PyPI's project settings under *Publishing → Add a new publisher*, pointing at this repository's `publish.yml` workflow.
+The publishing workflow uses [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (OpenID Connect), which means no API tokens need to be stored as secrets. This must be configured once in PyPI's project settings under *Publishing → Add a new publisher*, pointing at this repository's `publish.yml` workflow.
