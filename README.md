@@ -8,7 +8,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/luno/luno-python/blob/main/LICENSE.txt)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-python&metric=alert_status)](https://sonarcloud.io/dashboard?id=luno_luno-python)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-python&metric=coverage)](https://sonarcloud.io/dashboard?id=luno_luno-python)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-python&metric=bugs)](https://sonarcloud.io/dashboard?id=luno_luno-python)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-python&metric=security_rating)](https://sonarcloud.io/dashboard?id=luno_luno-python)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=luno_luno-python&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=luno_luno-python)
