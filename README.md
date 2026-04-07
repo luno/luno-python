@@ -1,6 +1,11 @@
 <img src="https://d32exi8v9av3ux.cloudfront.net/static/images/luno-email-336.png">
 
-# Luno API [![Build Status](https://travis-ci.org/luno/luno-python.svg?branch=master)](https://travis-ci.org/luno/luno-python)
+# Luno Python SDK
+
+[![Run Tests](https://github.com/luno/luno-python/actions/workflows/test.yml/badge.svg)](https://github.com/luno/luno-python/actions/workflows/test.yml)
+[![PyPI version](https://img.shields.io/pypi/v/luno-python.svg)](https://pypi.org/project/luno-python/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/luno-python.svg)](https://pypi.org/project/luno-python/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/luno/luno-python/blob/master/LICENSE.txt)
 
 This Python package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
@@ -27,6 +32,8 @@ try:
 except Exception as e:
   print(e)
 ```
+
+For more examples, see the [examples](./examples) folder.
 
 ### License
 
