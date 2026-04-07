@@ -5,7 +5,7 @@
 [![Run Tests](https://github.com/luno/luno-python/actions/workflows/test.yml/badge.svg)](https://github.com/luno/luno-python/actions/workflows/test.yml)
 [![PyPI version](https://img.shields.io/pypi/v/luno-python.svg)](https://pypi.org/project/luno-python/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/luno-python.svg)](https://pypi.org/project/luno-python/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/luno/luno-python/blob/master/LICENSE.txt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/luno/luno-python/blob/main/LICENSE.txt)
 
 This Python package provides a wrapper for the [Luno API](https://www.luno.com/api).
 
