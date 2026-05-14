@@ -10,7 +10,7 @@
   semanticCommits: 'disabled',
   commitMessagePrefix: 'renovate:',
   reviewers: [
-    'echarrod',
-    'adamhicks',
+    'RieshBissessur',
+    'andrewwormald',
   ],
 }
